@@ -8,7 +8,7 @@ on:
       - master
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -34,14 +34,14 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      # 4. Make Gradle executable
+      # 4. Prepare Gradle
       - name: Prepare Gradle
         working-directory: android
         run: |
           chmod +x gradlew
           gradle --version
 
-      # 5. Fix missing launcher resources
+      # 5. Create missing launcher resources
       - name: Create missing launcher resources
         working-directory: android
         run: |
@@ -54,9 +54,11 @@ jobs:
               android:height="108dp"
               android:viewportWidth="108"
               android:viewportHeight="108">
+
               <path
                   android:fillColor="#000000"
                   android:pathData="M0,0h108v108h-108z" />
+
               <path
                   android:fillColor="#2196F3"
                   android:pathData="M18,18h72v72h-72z" />
@@ -66,7 +68,7 @@ jobs:
           cp app/src/main/res/mipmap-anydpi-v21/ic_launcher.xml \
              app/src/main/res/mipmap-anydpi-v21/ic_launcher_round.xml
 
-      # 6. Check Android project
+      # 6. Verify Android project
       - name: Verify Android project
         working-directory: android
         run: |
@@ -82,7 +84,7 @@ jobs:
         run: |
           gradle clean --stacktrace --no-daemon
 
-      # 8. Build REAL Debug APK
+      # 8. Build APK
       - name: Build Debug APK
         working-directory: android
         run: |
@@ -91,7 +93,7 @@ jobs:
             --no-daemon \
             --warning-mode all
 
-      # 9. Verify APK exists
+      # 9. Verify APK
       - name: Verify APK
         working-directory: android
         run: |
@@ -106,14 +108,33 @@ jobs:
           echo "======================================"
           echo "APK BUILD SUCCESSFUL"
           echo "======================================"
+
           ls -lh "$APK"
           file "$APK"
 
-      # 10. Upload APK
+      # 10. Upload APK directly
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Prachurjo-Calculator
+          name: Prachurjo-Calculator-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          compression-level: 0
           retention-days: 30
+
+      # 11. Create GitHub Release
+      - name: Create APK Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "apk-${{ github.run_number }}"
+          name: "Prachurjo Calculator APK ${{ github.run_number }}"
+          body: |
+            # Prachurjo Calculator
+
+            APK build completed successfully.
+
+            Download the APK directly from the Assets section.
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
