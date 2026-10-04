@@ -358,6 +358,14 @@ export const ThemeCustomizerModal: React.FC<ThemeCustomizerModalProps> = ({
                       isSelected={activeThemeId === t.id}
                       onSelect={() => {
                         triggerHaptic('medium');
+                        setBg(t.bg);
+                        setNumberBg(t.numberBg);
+                        setOperatorBg(t.operatorBg);
+                        setEqualsBg(t.equalsBg);
+                        setTextColor(t.displayText);
+                        setBgImage(t.bgImage);
+                        setBgBlur(t.bgBlur ?? 2);
+                        setBgOverlayOpacity(t.bgOverlayOpacity ?? 35);
                         onSelectThemeId(t.id);
                       }}
                     />

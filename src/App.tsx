@@ -1001,7 +1001,7 @@ export default function App() {
           }}
           onOpenThemes={() => {
             setIsCustomizationOpen(false);
-            setIsThemesOpen(true);
+            setCurrentPage('theme-studio');
           }}
           onClose={() => setIsCustomizationOpen(false)}
         />
