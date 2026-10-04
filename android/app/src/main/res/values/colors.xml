@@ -1,0 +1,13 @@
+<resources>
+    <color name="number_btn_light">#DDE3EA</color>
+    <color name="number_text_light">#191C1E</color>
+    <color name="operator_btn_light">#B9E1F7</color>
+    <color name="operator_text_light">#001D35</color>
+    <color name="equals_btn">#087A36</color>
+    <color name="equals_text">#FFFFFF</color>
+
+    <color name="number_btn_dark">#2E3135</color>
+    <color name="number_text_dark">#E2E2E6</color>
+    <color name="operator_btn_dark">#004A77</color>
+    <color name="operator_text_dark">#C2E7FF</color>
+</resources>

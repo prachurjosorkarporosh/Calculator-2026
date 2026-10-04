@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Prachurjo Calculator",
+  "short_name": "Calculator",
+  "description": "Offline Android scientific calculator with basic & collapsible scientific modes, local history, and themes.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
+  "categories": ["utilities", "productivity", "education"],
+  "icons": [
+    {
+      "src": "/calculator-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

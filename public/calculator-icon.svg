@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#087A36" />
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7DD3FC" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Base Squircle -->
+  <rect x="32" y="32" width="448" height="448" rx="108" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- Subtle grid pattern overlay -->
+  <g opacity="0.08" stroke="#FFFFFF" stroke-width="2">
+    <line x1="32" y1="256" x2="480" y2="256"/>
+    <line x1="256" y1="32" x2="256" y2="480"/>
+  </g>
+
+  <!-- Display bar mockup at top -->
+  <rect x="80" y="86" width="352" height="88" rx="24" fill="#1E293B" stroke="#334155" stroke-width="3"/>
+  <text x="400" y="146" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="42" font-weight="700" fill="#38BDF8" text-anchor="end">88.88</text>
+
+  <!-- Button Grid Icons -->
+  <!-- Top Left: Plus -->
+  <circle cx="150" cy="240" r="42" fill="#334155" />
+  <path d="M150 220 V260 M130 240 H170" stroke="#F1F5F9" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Top Right: Minus -->
+  <circle cx="256" cy="240" r="42" fill="#334155" />
+  <path d="M236 240 H276" stroke="#F1F5F9" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Science/Function Key: Pi / Root -->
+  <circle cx="362" cy="240" r="42" fill="url(#blueGrad)" />
+  <path d="M346 248 L352 254 L360 228 H376" stroke="#001D35" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Bottom Left: Multiply -->
+  <circle cx="150" cy="350" r="42" fill="#334155" />
+  <path d="M136 336 L164 364 M164 336 L136 364" stroke="#F1F5F9" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Bottom Middle: Divide -->
+  <circle cx="256" cy="350" r="42" fill="#334155" />
+  <path d="M236 350 H276" stroke="#F1F5F9" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="256" cy="334" r="5" fill="#F1F5F9" />
+  <circle cx="256" cy="366" r="5" fill="#F1F5F9" />
+
+  <!-- Bottom Right: Equals in Signature Prachurjo Green -->
+  <rect x="320" y="308" width="84" height="84" rx="30" fill="url(#greenGrad)" />
+  <path d="M346 342 H378 M346 358 H378" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Brand Signature Dot -->
+  <circle cx="430" cy="80" r="8" fill="#10B981"/>
+</svg>
