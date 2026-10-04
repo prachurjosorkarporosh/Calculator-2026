@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Calculator APK
 
 on:
   workflow_dispatch:
@@ -12,10 +12,11 @@ permissions:
 
 jobs:
   build:
-    name: Build Prachurjo Calculator APK
+    name: Build Calculator APK
     runs-on: ubuntu-latest
 
     steps:
+
       # 1. Checkout
       - name: Checkout source
         uses: actions/checkout@v4
@@ -28,7 +29,7 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      # 3. Gradle
+      # 3. Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -41,34 +42,52 @@ jobs:
           chmod +x gradlew
           gradle --version
 
-      # 5. Create missing launcher resources
-      - name: Create missing launcher resources
+      # 5. Add Calculator Logo
+      - name: Setup Calculator Logo
         working-directory: android
         run: |
-          mkdir -p app/src/main/res/mipmap-anydpi-v21
+          if [ ! -f "../assets/calculator_logo.png" ]; then
+            echo "ERROR: assets/calculator_logo.png not found!"
+            exit 1
+          fi
 
-          cat > app/src/main/res/mipmap-anydpi-v21/ic_launcher.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="108dp"
-              android:height="108dp"
-              android:viewportWidth="108"
-              android:viewportHeight="108">
+          mkdir -p app/src/main/res/mipmap-mdpi
+          mkdir -p app/src/main/res/mipmap-hdpi
+          mkdir -p app/src/main/res/mipmap-xhdpi
+          mkdir -p app/src/main/res/mipmap-xxhdpi
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
 
-              <path
-                  android:fillColor="#000000"
-                  android:pathData="M0,0h108v108h-108z" />
+          convert "../assets/calculator_logo.png" -resize 48x48 \
+            app/src/main/res/mipmap-mdpi/ic_launcher.png
 
-              <path
-                  android:fillColor="#2196F3"
-                  android:pathData="M18,18h72v72h-72z" />
-          </vector>
-          EOF
+          convert "../assets/calculator_logo.png" -resize 72x72 \
+            app/src/main/res/mipmap-hdpi/ic_launcher.png
 
-          cp app/src/main/res/mipmap-anydpi-v21/ic_launcher.xml \
-             app/src/main/res/mipmap-anydpi-v21/ic_launcher_round.xml
+          convert "../assets/calculator_logo.png" -resize 96x96 \
+            app/src/main/res/mipmap-xhdpi/ic_launcher.png
 
-      # 6. Verify Android project
+          convert "../assets/calculator_logo.png" -resize 144x144 \
+            app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+
+          convert "../assets/calculator_logo.png" -resize 192x192 \
+            app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+
+          cp app/src/main/res/mipmap-mdpi/ic_launcher.png \
+             app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+
+          cp app/src/main/res/mipmap-hdpi/ic_launcher.png \
+             app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+
+          cp app/src/main/res/mipmap-xhdpi/ic_launcher.png \
+             app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+
+          cp app/src/main/res/mipmap-xxhdpi/ic_launcher.png \
+             app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+
+          cp app/src/main/res/mipmap-xxxhdpi/ic_launcher.png \
+             app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+
+      # 6. Verify Android Project
       - name: Verify Android project
         working-directory: android
         run: |
@@ -76,6 +95,7 @@ jobs:
           test -f build.gradle.kts
           test -f app/build.gradle.kts
           test -f app/src/main/AndroidManifest.xml
+
           echo "Android project structure OK"
 
       # 7. Clean
@@ -84,8 +104,8 @@ jobs:
         run: |
           gradle clean --stacktrace --no-daemon
 
-      # 8. Build APK
-      - name: Build Debug APK
+      # 8. Build Debug APK
+      - name: Build Calculator APK
         working-directory: android
         run: |
           gradle :app:assembleDebug \
@@ -106,35 +126,45 @@ jobs:
           fi
 
           echo "======================================"
-          echo "APK BUILD SUCCESSFUL"
+          echo "CALCULATOR APK BUILD SUCCESSFUL"
           echo "======================================"
 
           ls -lh "$APK"
           file "$APK"
 
-      # 10. Upload APK directly
-      - name: Upload APK
+      # 10. Rename APK to Calculator.apk
+      - name: Rename APK
+        run: |
+          mkdir -p release
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+             release/Calculator.apk
+
+          ls -lh release/Calculator.apk
+
+      # 11. Upload Direct APK Artifact
+      - name: Upload Calculator APK
         uses: actions/upload-artifact@v4
         with:
-          name: Prachurjo-Calculator-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Calculator-APK
+          path: release/Calculator.apk
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
 
-      # 11. Create GitHub Release
-      - name: Create APK Release
+      # 12. Create GitHub Release
+      - name: Create Calculator Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "apk-${{ github.run_number }}"
-          name: "Prachurjo Calculator APK ${{ github.run_number }}"
+          tag_name: "calculator-${{ github.run_number }}"
+          name: "Calculator APK ${{ github.run_number }}"
           body: |
-            # Prachurjo Calculator
+            # Calculator
 
-            APK build completed successfully.
+            Calculator APK built successfully.
 
-            Download the APK directly from the Assets section.
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+            ## Download
+            Download `Calculator.apk` from the Assets section below.
+          files: release/Calculator.apk
           generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
