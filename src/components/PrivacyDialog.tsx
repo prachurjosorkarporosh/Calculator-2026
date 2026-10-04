@@ -1,89 +1,197 @@
 /**
- * Privacy Policy Dialog
+ * Privacy Policy Dialog (Theme-Adaptive)
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
+ *
+ * 100% Offline Device Security & Privacy Architecture
+ * Dynamically adapts to the currently active Theme Palette
  */
 
 import React from 'react';
-import { ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, HardDrive, WifiOff, Lock, EyeOff, X } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
+import { ThemePalette } from '../data/themes.ts';
+import { getModalThemeStyles } from '../utils/themeStyles.ts';
 
 interface PrivacyDialogProps {
   isOpen: boolean;
+  palette?: ThemePalette;
   onClose: () => void;
 }
 
-export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({ isOpen, onClose }) => {
+export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
+  isOpen,
+  palette,
+  onClose,
+}) => {
+  const theme = getModalThemeStyles(palette);
+
   if (!isOpen) return null;
 
+  const points = [
+    {
+      icon: WifiOff,
+      title: '100% Offline-First',
+      desc: 'Never requires internet access. All calculation formulas and algorithms run directly on your hardware.',
+    },
+    {
+      icon: HardDrive,
+      title: 'Local Device Storage (IndexedDB)',
+      desc: 'Your history, customized colors, and uploaded wallpapers remain exclusively inside your device.',
+    },
+    {
+      icon: EyeOff,
+      title: 'Zero Tracking & No Analytics',
+      desc: 'No cookies, telemetry, user tracking, advertisements, or background telemetry whatsoever.',
+    },
+    {
+      icon: Lock,
+      title: 'No Sign-in or Account Required',
+      desc: 'Instant access. No email, registration, personal identifiers, or cloud permissions needed.',
+    },
+  ];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-md bg-[#EEF2F6] dark:bg-[#25282D] rounded-3xl p-6 shadow-2xl border border-slate-200/50 dark:border-slate-700/50 text-slate-800 dark:text-slate-100 max-h-[85vh] flex flex-col">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-[#087A36] dark:text-emerald-400">
-            <ShieldCheck className="w-6 h-6" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-150 select-none">
+      <div
+        style={{
+          backgroundColor: theme.dialogBg,
+          borderColor: theme.dialogBorder,
+          color: theme.textPrimary,
+          boxShadow: theme.isDark
+            ? '0 25px 60px rgba(0,0,0,0.7)'
+            : '0 20px 50px rgba(0,0,0,0.18)',
+        }}
+        className="w-full max-w-md rounded-3xl border overflow-hidden flex flex-col max-h-[90vh] transition-colors"
+      >
+        {/* Header */}
+        <div
+          style={{
+            borderColor: theme.headerBorder,
+            backgroundColor: theme.headerBg,
+          }}
+          className="px-5 py-4 border-b flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                backgroundColor: theme.subtleAccentBg,
+                color: theme.accentColor,
+                borderColor: theme.subtleAccentBorder,
+              }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center border"
+            >
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-2">
+                <span>Privacy & Security</span>
+                <span
+                  style={{
+                    backgroundColor: theme.subtleAccentBg,
+                    color: theme.accentColor,
+                  }}
+                  className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold"
+                >
+                  Offline
+                </span>
+              </h3>
+              <p style={{ color: theme.textSecondary }} className="text-[11px]">
+                Calculator · Privacy Architecture
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-medium tracking-tight">Privacy Policy</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Prachurjo Calculator · 100% Offline
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ color: theme.textSecondary }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              theme.isDark ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-black/10 hover:text-black'
+            }`}
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-1 space-y-4 text-sm text-slate-600 dark:text-slate-300">
-          <p>
-            Your privacy is completely respected. <strong>Prachurjo Calculator</strong> is built as a pure, privacy-first offline calculator application.
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-3 scrollbar-thin">
+          <p style={{ color: theme.textSecondary }} className="text-xs leading-relaxed">
+            Your privacy is absolute. <strong>Calculator</strong> is engineered from the ground up as a pure offline software utility.
           </p>
 
-          <div className="space-y-2.5 bg-white/70 dark:bg-black/20 p-3.5 rounded-2xl border border-slate-200/50 dark:border-slate-700/40">
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#087A36] dark:text-emerald-400 mt-0.5 shrink-0" />
-              <span><strong>100% Offline:</strong> No internet connection is ever needed or used.</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#087A36] dark:text-emerald-400 mt-0.5 shrink-0" />
-              <span><strong>Local Calculations:</strong> All math expressions are parsed and evaluated strictly on your device.</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#087A36] dark:text-emerald-400 mt-0.5 shrink-0" />
-              <span><strong>Local History & Settings:</strong> History entries and theme preferences are saved locally in internal device storage.</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#087A36] dark:text-emerald-400 mt-0.5 shrink-0" />
-              <span><strong>No Accounts or Tracking:</strong> No registration, logins, telemetry, ads, or analytics.</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#087A36] dark:text-emerald-400 mt-0.5 shrink-0" />
-              <span><strong>Zero Intrusive Permissions:</strong> Does not request access to camera, location, contacts, or storage.</span>
-            </div>
+          <div className="space-y-2.5">
+            {points.map((p) => {
+              const Icon = p.icon;
+              return (
+                <div
+                  key={p.title}
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="p-3.5 rounded-2xl border flex items-start gap-3"
+                >
+                  <div
+                    style={{
+                      backgroundColor: theme.subtleAccentBg,
+                      color: theme.accentColor,
+                    }}
+                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div style={{ color: theme.textPrimary }} className="text-xs font-bold">
+                      {p.title}
+                    </div>
+                    <div
+                      style={{ color: theme.textSecondary }}
+                      className="text-[11px] mt-0.5 leading-relaxed"
+                    >
+                      {p.desc}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Developer: Prachurjo Sorkar Porosh<br />
-            Website:{' '}
+          <div style={{ color: theme.textMuted }} className="pt-2 text-[11px]">
+            Developer: Prachurjo Sorkar Porosh ·{' '}
             <a
               href="https://prachurjo.dev.cv"
               target="_blank"
               rel="noreferrer"
-              className="text-[#087A36] dark:text-emerald-400 hover:underline"
+              style={{ color: theme.accentColor }}
+              className="hover:underline"
             >
               https://prachurjo.dev.cv
             </a>
-          </p>
+          </div>
         </div>
 
-        <div className="mt-5 flex justify-end">
+        {/* Footer */}
+        <div
+          style={{
+            borderColor: theme.footerBorder,
+            backgroundColor: theme.footerBg,
+          }}
+          className="px-5 py-3.5 border-t flex items-center justify-end"
+        >
           <button
             type="button"
             onClick={() => {
               triggerHaptic('light');
               onClose();
             }}
-            className="px-6 py-2 text-sm font-semibold text-white bg-[#087A36] hover:bg-[#076c30] rounded-full transition-colors shadow-sm"
+            style={{
+              backgroundColor: theme.accentBg,
+              color: theme.accentText,
+            }}
+            className="px-6 py-2 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer hover:brightness-110"
           >
-            Close
+            Acknowledge & Close
           </button>
         </div>
       </div>

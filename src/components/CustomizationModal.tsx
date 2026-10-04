@@ -1,19 +1,19 @@
 /**
- * Advanced Personalize & Sizing Studio (পার্সোনালাইজেশন ও সাইজিং স্টুডিও)
+ * Advanced Personalize & Sizing Studio (Theme-Adaptive)
  * Developer: Prachurjo Sorkar Porosh
  * https://prachurjo.dev.cv
  * © 2026 Calculator. All rights reserved.
  *
- * Supercharged Features:
- * - Personal Name / Signature branding on calculator
- * - 5 Keypad Scales: Compact, Standard, Spacious, Jumbo, Ultra
+ * Professional Personalization & Sizing Studio:
+ * - Personal Name / Signature branding on calculator top bar
+ * - 5 Keypad Scales: Compact (48px), Standard (56px), Spacious (64px), Jumbo (72px), Ultra (80px)
  * - 3 Display Font Sizes: Standard (100%), Large (125%), Huge (150%)
- * - 4 Corner Shapes: Circle/Pill, Squircle, Soft Corners, Subtle Sharp
+ * - 4 Button Corner Shapes: Circle/Pill, Squircle, Soft Corners, Subtle Sharp
  * - Button Glass Blur slider (0px - 24px)
- * - App Icon style switcher
- * - Audio Effects with live Play Sound test buttons
- * - Haptic Vibration toggle
- * - Live Interactive Mini Keypad Preview
+ * - Audio Effects with live Play Sound preview triggers
+ * - Haptic Touch Vibration & Thousands Formatting Commas
+ * - Real-time working interactive mini preview
+ * - Dynamically adapts to the currently active Theme Palette
  */
 
 import React, { useState } from 'react';
@@ -33,16 +33,19 @@ import {
   Play,
   Check,
   Sliders,
+  ChevronRight,
 } from 'lucide-react';
 import { ButtonShape, KeypadScale, DisplaySize, SoundEffectType } from '../types.ts';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
 import { FONTS_CATALOG } from '../data/fonts.ts';
-import { THEME_PALETTES } from '../data/themes.ts';
+import { THEME_PALETTES, ThemePalette } from '../data/themes.ts';
 import { getAppIconDataUri } from '../data/appIcons.ts';
+import { getModalThemeStyles } from '../utils/themeStyles.ts';
 
 interface CustomizationModalProps {
   isOpen: boolean;
+  palette?: ThemePalette;
   buttonShape: ButtonShape;
   keypadScale: KeypadScale;
   displaySize?: DisplaySize;
@@ -72,6 +75,7 @@ interface CustomizationModalProps {
 
 export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   isOpen,
+  palette,
   buttonShape,
   keypadScale,
   displaySize = 'standard',
@@ -98,40 +102,41 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   onOpenThemes,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState<'personal' | 'sizing'>('sizing');
+  const [activeTab, setActiveTab] = useState<'sizing' | 'personal'>('sizing');
   const [inputName, setInputName] = useState(personalName);
-
-  if (!isOpen) return null;
 
   const currentFont = FONTS_CATALOG.find((f) => f.id === activeFontId);
   const currentTheme = THEME_PALETTES.find((t) => t.id === activeThemeId);
+  const theme = getModalThemeStyles(palette || currentTheme);
+
+  if (!isOpen) return null;
 
   const shapes: { id: ButtonShape; label: string; previewClass: string }[] = [
-    { id: 'round', label: 'Circle / Pill', previewClass: 'rounded-full' },
-    { id: 'squircle', label: 'Squircle', previewClass: 'rounded-[20px]' },
+    { id: 'round', label: 'Pill / Circle', previewClass: 'rounded-full' },
+    { id: 'squircle', label: 'Squircle', previewClass: 'rounded-[16px]' },
     { id: 'soft', label: 'Soft Corners', previewClass: 'rounded-xl' },
     { id: 'sharp', label: 'Subtle Sharp', previewClass: 'rounded-md' },
   ];
 
   const scales: { id: KeypadScale; label: string; desc: string; tag: string }[] = [
-    { id: 'compact', label: 'কমপ্যাক্ট (Compact)', desc: 'ছোট স্ক্রিনের জন্য আঁটসাঁট ও কমপ্যাক্ট', tag: '48px' },
-    { id: 'standard', label: 'স্ট্যান্ডার্ড (Standard)', desc: 'আদর্শ ব্যালেন্সড এন্ড্রয়েড ম্যাটেরিয়াল লেআউট', tag: '56px' },
-    { id: 'spacious', label: 'স্পেশাস (Spacious)', desc: 'দীর্ঘ বাটন, আরামদায়ক আঙুলের ছোঁয়া', tag: '64px' },
-    { id: 'jumbo', label: 'জ্যাম্বো (Jumbo)', desc: 'বিশাল বাটন, বড় স্পর্শের জায়গা', tag: '72px' },
-    { id: 'ultra', label: 'আল্ট্রা (Ultra Jumbo)', desc: 'সর্বোচ্চ বড় সাইজ ও সর্বোচ্চ উচ্চতা', tag: '80px' },
+    { id: 'compact', label: 'Compact', desc: 'Tight spacing for smaller phones', tag: '48px' },
+    { id: 'standard', label: 'Standard', desc: 'Balanced Android Material layout', tag: '56px' },
+    { id: 'spacious', label: 'Spacious', desc: 'Comfortable tall touch targets', tag: '64px' },
+    { id: 'jumbo', label: 'Jumbo', desc: 'Large high-reach touch buttons', tag: '72px' },
+    { id: 'ultra', label: 'Ultra', desc: 'Maximum full-height giant keys', tag: '80px' },
   ];
 
-  const displaySizes: { id: DisplaySize; label: string; desc: string; sample: string }[] = [
-    { id: 'standard', label: 'স্ট্যান্ডার্ড (100%)', desc: 'স্বাভাবিক রেজাল্ট টেক্সট সাইজ', sample: 'text-2xl' },
-    { id: 'large', label: 'বড় সাইজ (125%)', desc: 'সহজে পড়ার জন্য +২৫% বড় ফন্ট', sample: 'text-3xl' },
-    { id: 'huge', label: 'সুবিশাল (150%)', desc: 'দৃষ্টিসুখকর +৫০% সুপার সাইজ', sample: 'text-4xl' },
+  const displaySizes: { id: DisplaySize; label: string; desc: string }[] = [
+    { id: 'standard', label: 'Standard (100%)', desc: 'Default balanced size' },
+    { id: 'large', label: 'Large (125%)', desc: '+25% larger numbers' },
+    { id: 'huge', label: 'Huge (150%)', desc: '+50% oversized digits' },
   ];
 
-  const soundStyles: { id: SoundEffectType; label: string; soundType: SoundEffectType }[] = [
-    { id: 'tactile', label: 'Android Click (ট্যাকটাইল)', soundType: 'tactile' },
-    { id: 'pop', label: 'Bubble Pop (বাবল পপ)', soundType: 'pop' },
-    { id: 'mechanical', label: 'Mechanical Key (মেকানিক্যাল)', soundType: 'mechanical' },
-    { id: 'beep', label: 'Digital Beep (ডিজিটাল বিপ)', soundType: 'beep' },
+  const soundStyles: { id: SoundEffectType; label: string; desc: string }[] = [
+    { id: 'tactile', label: 'Android Tactile', desc: 'Standard haptic click' },
+    { id: 'pop', label: 'Bubble Pop', desc: 'Playful organic pop' },
+    { id: 'mechanical', label: 'Mechanical Switch', desc: 'Crisp mechanical keystroke' },
+    { id: 'beep', label: 'Digital Beep', desc: 'Classic digital watch tone' },
   ];
 
   const handleNameSave = (e: React.FormEvent) => {
@@ -143,48 +148,80 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4 animate-in fade-in duration-150 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#EEF2F6] dark:bg-[#1E2126] text-slate-800 dark:text-slate-100 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700/60 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4 backdrop-blur-md animate-in fade-in duration-150 select-none">
+      <div
+        style={{
+          backgroundColor: theme.dialogBg,
+          borderColor: theme.dialogBorder,
+          color: theme.textPrimary,
+          boxShadow: theme.isDark
+            ? '0 25px 60px rgba(0,0,0,0.7)'
+            : '0 20px 50px rgba(0,0,0,0.18)',
+        }}
+        className="w-full max-w-lg rounded-3xl border overflow-hidden flex flex-col max-h-[92vh] transition-colors"
+      >
         {/* Header */}
-        <div className="px-4 sm:px-6 py-3.5 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between bg-white/70 dark:bg-black/30">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+        <div
+          style={{
+            borderColor: theme.headerBorder,
+            backgroundColor: theme.headerBg,
+          }}
+          className="px-5 py-4 border-b flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                backgroundColor: theme.subtleAccentBg,
+                color: theme.accentColor,
+                borderColor: theme.subtleAccentBorder,
+              }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center border"
+            >
               <SlidersHorizontal className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold tracking-tight">
-                Personalize & Sizing Studio
+              <h3 className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-2">
+                <span>Personalize & Sizing Studio</span>
               </h3>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-                ক্যালকুলেটরের সাইজ, স্কেল ও পার্সোনাল প্রোফাইল
+              <p style={{ color: theme.textSecondary }} className="text-[11px]">
+                Keypad scale, corner styling, sound styles & custom signature
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            style={{ color: theme.textSecondary }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              theme.isDark ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-black/10 hover:text-black'
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="px-4 sm:px-6 pt-3 pb-2 flex gap-2 border-b border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-black/10">
+        <div
+          style={{
+            borderColor: theme.headerBorder,
+            backgroundColor: theme.headerBg,
+          }}
+          className="px-5 pt-3 pb-2 flex gap-2 border-b"
+        >
           <button
             type="button"
             onClick={() => {
               triggerHaptic('light');
               setActiveTab('sizing');
             }}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'sizing'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/5'
-            }`}
+            style={{
+              backgroundColor: activeTab === 'sizing' ? theme.accentBg : 'transparent',
+              color: activeTab === 'sizing' ? theme.accentText : theme.textSecondary,
+            }}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm hover:brightness-105"
           >
             <Maximize2 className="w-3.5 h-3.5" />
-            <span>সাইজ ও স্কেল (Sizing)</span>
+            <span>Size & Scaling</span>
           </button>
 
           <button
@@ -193,39 +230,55 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
               triggerHaptic('light');
               setActiveTab('personal');
             }}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'personal'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/5'
-            }`}
+            style={{
+              backgroundColor: activeTab === 'personal' ? theme.accentBg : 'transparent',
+              color: activeTab === 'personal' ? theme.accentText : theme.textSecondary,
+            }}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm hover:brightness-105"
           >
             <User className="w-3.5 h-3.5" />
-            <span>পার্সোনাল প্রোফাইল (Personal)</span>
+            <span>Personal Profile & Audio</span>
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs sm:text-sm">
-          {/* SIZING TAB */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs scrollbar-thin">
+          {/* TAB 1: SIZING */}
           {activeTab === 'sizing' && (
             <div className="space-y-4">
               {/* Live Interactive Keypad Mini Sample Preview */}
-              <div className="p-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-black/30 border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                  <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
+              <div
+                style={{
+                  backgroundColor: theme.itemBg,
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-4 rounded-2xl border space-y-2.5"
+              >
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span
+                    style={{ color: theme.accentColor }}
+                    className="flex items-center gap-1.5"
+                  >
                     <Sparkles className="w-3.5 h-3.5" />
-                    লাইভ সাইজ প্রিভিউ (Live Size Preview):
+                    <span>Live Keypad Sizing Preview</span>
                   </span>
-                  <span className="text-[10px] text-slate-400 uppercase font-mono">
+                  <span style={{ color: theme.textSecondary }} className="text-[10px] uppercase font-mono">
                     {keypadScale} • {buttonShape} • {displaySize}
                   </span>
                 </div>
 
                 {/* Display Sample */}
-                <div className="text-right p-2 rounded-xl bg-black/5 dark:bg-black/40 font-mono">
-                  <div className="text-[10px] text-slate-400">128 × 256</div>
+                <div
+                  style={{
+                    backgroundColor: theme.isDark ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.06)',
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="text-right p-2.5 rounded-xl font-mono border"
+                >
+                  <div style={{ color: theme.textSecondary }} className="text-[10px]">128 × 256</div>
                   <div
-                    className={`font-bold text-slate-900 dark:text-white transition-all ${
+                    style={{ color: theme.textPrimary }}
+                    className={`font-bold transition-all ${
                       displaySize === 'huge' ? 'text-3xl' : displaySize === 'large' ? 'text-2xl' : 'text-xl'
                     }`}
                   >
@@ -243,11 +296,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                         triggerHaptic('light');
                         if (soundEnabled) playKeypressSound(k === '×' ? 'operator' : 'number', soundType);
                       }}
-                      className={`flex items-center justify-center font-bold text-sm shadow-sm transition-all active:scale-95 cursor-pointer ${
-                        k === '×'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-white dark:bg-white/10 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10'
-                      } ${
+                      style={{
+                        backgroundColor: k === '×' ? theme.accentBg : theme.itemBg,
+                        color: k === '×' ? theme.accentText : theme.textPrimary,
+                        borderColor: theme.itemBorder,
+                      }}
+                      className={`flex items-center justify-center font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer border ${
                         buttonShape === 'round'
                           ? 'rounded-full'
                           : buttonShape === 'squircle'
@@ -275,9 +329,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
               {/* Keypad Scale (5 Options) */}
               <div>
-                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white mb-2">
-                  <Maximize2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span>কিপ্যাড স্কেলিং ও সাইজ (Keypad Scale):</span>
+                <div className="flex items-center gap-2 font-bold mb-2">
+                  <Maximize2
+                    style={{ color: theme.accentColor }}
+                    className="w-4 h-4"
+                  />
+                  <span>Keypad Height Scaling:</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {scales.map((s) => (
@@ -288,19 +345,28 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                         triggerHaptic('light');
                         onChangeKeypadScale(s.id);
                       }}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
-                        keypadScale === s.id
-                          ? 'bg-purple-500/10 dark:bg-purple-500/20 border-purple-500 text-slate-900 dark:text-white shadow-sm ring-1 ring-purple-500/40'
-                          : 'bg-white/60 dark:bg-black/20 border-slate-200/60 dark:border-slate-700/40 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-black/30'
+                      style={{
+                        backgroundColor: keypadScale === s.id ? theme.subtleAccentBg : theme.itemBg,
+                        borderColor: keypadScale === s.id ? theme.accentColor : theme.itemBorder,
+                        color: theme.textPrimary,
+                      }}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                        keypadScale === s.id ? 'shadow-sm ring-1 ring-emerald-500/20' : ''
                       }`}
                     >
                       <div>
                         <div className="font-bold text-xs">{s.label}</div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                        <div style={{ color: theme.textSecondary }} className="text-[10px] mt-0.5">
                           {s.desc}
                         </div>
                       </div>
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0 ml-2">
+                      <span
+                        style={{
+                          backgroundColor: theme.subtleAccentBg,
+                          color: theme.accentColor,
+                        }}
+                        className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shrink-0 ml-2"
+                      >
                         {s.tag}
                       </span>
                     </button>
@@ -310,9 +376,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
               {/* Display Result Font Size */}
               <div>
-                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white mb-2">
-                  <Type className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span>স্ক্রিন রেজাল্ট ফন্ট সাইজ (Display Number Size):</span>
+                <div className="flex items-center gap-2 font-bold mb-2">
+                  <Type
+                    style={{ color: theme.accentColor }}
+                    className="w-4 h-4"
+                  />
+                  <span>Display Digits Size:</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {displaySizes.map((ds) => (
@@ -323,14 +392,17 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                         triggerHaptic('light');
                         if (onChangeDisplaySize) onChangeDisplaySize(ds.id);
                       }}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        displaySize === ds.id
-                          ? 'bg-purple-500/10 dark:bg-purple-500/20 border-purple-500 text-slate-900 dark:text-white shadow-sm ring-1 ring-purple-500/40'
-                          : 'bg-white/60 dark:bg-black/20 border-slate-200/60 dark:border-slate-700/40 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-black/30'
+                      style={{
+                        backgroundColor: displaySize === ds.id ? theme.subtleAccentBg : theme.itemBg,
+                        borderColor: displaySize === ds.id ? theme.accentColor : theme.itemBorder,
+                        color: theme.textPrimary,
+                      }}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                        displaySize === ds.id ? 'shadow-sm ring-1 ring-emerald-500/20' : ''
                       }`}
                     >
                       <div className="font-bold text-xs">{ds.label}</div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+                      <div style={{ color: theme.textSecondary }} className="text-[10px] mt-0.5 leading-tight">
                         {ds.desc}
                       </div>
                     </button>
@@ -340,9 +412,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
               {/* Button Corner Style */}
               <div>
-                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white mb-2">
-                  <Shapes className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span>বাটন কর্নার শেপ (Button Corner Shape):</span>
+                <div className="flex items-center gap-2 font-bold mb-2">
+                  <Shapes
+                    style={{ color: theme.accentColor }}
+                    className="w-4 h-4"
+                  />
+                  <span>Button Corner Shape:</span>
                 </div>
                 <div className="grid grid-cols-4 gap-2">
                   {shapes.map((s) => (
@@ -353,14 +428,22 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                         triggerHaptic('light');
                         onChangeButtonShape(s.id);
                       }}
-                      className={`p-2 flex flex-col items-center justify-center gap-1.5 rounded-xl border transition-all cursor-pointer ${
-                        buttonShape === s.id
-                          ? 'bg-purple-500/10 dark:bg-purple-500/20 border-purple-500 text-slate-900 dark:text-white shadow-sm ring-1 ring-purple-500/40'
-                          : 'bg-white/60 dark:bg-black/20 border-slate-200/60 dark:border-slate-700/40 text-slate-600 dark:text-slate-300'
+                      style={{
+                        backgroundColor: buttonShape === s.id ? theme.subtleAccentBg : theme.itemBg,
+                        borderColor: buttonShape === s.id ? theme.accentColor : theme.itemBorder,
+                        color: theme.textPrimary,
+                      }}
+                      className={`p-2.5 flex flex-col items-center justify-center gap-1.5 rounded-xl border transition-all cursor-pointer ${
+                        buttonShape === s.id ? 'shadow-sm ring-1 ring-emerald-500/20' : ''
                       }`}
                     >
                       <div
-                        className={`w-8 h-8 bg-purple-600/30 border border-purple-500/50 flex items-center justify-center text-[11px] font-bold ${s.previewClass}`}
+                        style={{
+                          backgroundColor: theme.subtleAccentBg,
+                          borderColor: theme.accentColor,
+                          color: theme.accentColor,
+                        }}
+                        className={`w-8 h-8 border flex items-center justify-center text-[11px] font-bold ${s.previewClass}`}
                       >
                         5
                       </div>
@@ -374,13 +457,28 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
               {/* Button Glass Blur Slider */}
               {onChangeButtonBlur && (
-                <div className="p-3.5 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/60 dark:border-slate-700/40 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                <div
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="p-4 rounded-2xl border space-y-2"
+                >
+                  <div className="flex items-center justify-between text-xs font-bold">
                     <div className="flex items-center gap-2">
-                      <Sliders className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <span>কাঁচের বোতামের ব্লার (Button Glass Blur):</span>
+                      <Sliders
+                        style={{ color: theme.accentColor }}
+                        className="w-4 h-4"
+                      />
+                      <span>Keypad Glass Backdrop Blur:</span>
                     </div>
-                    <span className="font-mono text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md">
+                    <span
+                      style={{
+                        backgroundColor: theme.subtleAccentBg,
+                        color: theme.accentColor,
+                      }}
+                      className="font-mono px-2 py-0.5 rounded-md"
+                    >
                       {buttonBlur}px
                     </span>
                   </div>
@@ -395,63 +493,40 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                       onChangeButtonBlur(val);
                       triggerHaptic('light');
                     }}
-                    className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    style={{ accentColor: theme.accentColor }}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-700/40"
                   />
-                  <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
+                  <div style={{ color: theme.textSecondary }} className="flex justify-between text-[10px]">
                     <span>0px (Sharp)</span>
-                    <span>8px (Standard)</span>
+                    <span>8px (Balanced)</span>
                     <span>16px (Frosted)</span>
                     <span>24px (Heavy Glass)</span>
                   </div>
                 </div>
               )}
-
-              {/* App Icon Switcher Card */}
-              {onOpenAppIcons && (
-                <div
-                  onClick={() => {
-                    triggerHaptic('light');
-                    onClose();
-                    onOpenAppIcons();
-                  }}
-                  className="p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/60 dark:border-slate-700/40 flex items-center justify-between cursor-pointer hover:bg-white dark:hover:bg-black/30 transition-all"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs border border-white/20 flex items-center justify-center shrink-0">
-                      <img
-                        src={getAppIconDataUri(activeAppIconId)}
-                        alt="Current icon"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs text-slate-900 dark:text-white">
-                        অ্যাপ আইকন স্টাইল (App Icon Style)
-                      </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        ১০+ স্টাইলিশ লঞ্চার ও ট্যাব আইকন
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    Change
-                  </span>
-                </div>
-              )}
             </div>
           )}
 
-          {/* PERSONAL TAB */}
+          {/* TAB 2: PERSONAL */}
           {activeTab === 'personal' && (
             <div className="space-y-4">
               {/* Personal Name / Signature Branding */}
-              <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-black/30 border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
-                  <User className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span>ক্যালকুলেটরে আপনার নাম / সিগনেচার (Personal Name):</span>
+              <div
+                style={{
+                  backgroundColor: theme.itemBg,
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-4 rounded-2xl border space-y-2"
+              >
+                <div className="flex items-center gap-2 font-bold">
+                  <User
+                    style={{ color: theme.accentColor }}
+                    className="w-4 h-4"
+                  />
+                  <span>Personal Calculator Signature:</span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  নিজের নাম লিখুন; এটি ক্যালকুলেটরের টপ বারে স্বগৌরবে প্রদর্শিত হবে।
+                <p style={{ color: theme.textSecondary }} className="text-[11px] leading-relaxed">
+                  Enter your name or custom label to appear prominently on the top bar of the calculator.
                 </p>
 
                 <form onSubmit={handleNameSave} className="flex gap-2 pt-1">
@@ -459,51 +534,73 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                     type="text"
                     value={inputName}
                     onChange={(e) => setInputName(e.target.value)}
-                    placeholder="যেমন: Porosh's Calc, প্রচ্ছুর্য..."
-                    className="flex-1 px-3 py-2 rounded-xl bg-black/5 dark:bg-white/10 border border-slate-300 dark:border-slate-700 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="e.g. Porosh's Calc, প্রচ্ছুর্য..."
+                    style={{
+                      backgroundColor: theme.inputBg,
+                      borderColor: theme.inputBorder,
+                      color: theme.textPrimary,
+                    }}
+                    className="flex-1 px-3 py-2 rounded-xl border text-xs font-semibold focus:outline-none"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95 transition-all cursor-pointer"
+                    style={{
+                      backgroundColor: theme.accentBg,
+                      color: theme.accentText,
+                    }}
+                    className="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1 shadow-md active:scale-95 transition-all cursor-pointer hover:brightness-110"
                   >
                     <Check className="w-3.5 h-3.5" />
-                    <span>সেভ</span>
+                    <span>Save</span>
                   </button>
                 </form>
               </div>
 
               {/* Sound & Audio Styles with Live Play Sound Buttons */}
-              <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-black/30 border border-slate-200 dark:border-slate-700/60 space-y-3">
+              <div
+                style={{
+                  backgroundColor: theme.itemBg,
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-4 rounded-2xl border space-y-3"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     {soundEnabled ? (
-                      <Volume2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <Volume2
+                        style={{ color: theme.accentColor }}
+                        className="w-4 h-4"
+                      />
                     ) : (
-                      <VolumeX className="w-4 h-4 text-slate-400" />
+                      <VolumeX style={{ color: theme.textSecondary }} className="w-4 h-4" />
                     )}
                     <div>
-                      <div className="font-bold text-xs text-slate-900 dark:text-white">
-                        বাটন টাচ অডিও (Sound Effects)
-                      </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                        বাটনে চাপলে ক্লিয়ার বাস্তবসম্মত শব্দ বাজবে
+                      <div className="font-bold text-xs">Audio Click Feedback</div>
+                      <div style={{ color: theme.textSecondary }} className="text-[10px]">
+                        Play acoustic audio click on button press
                       </div>
                     </div>
                   </div>
-
                   <button
                     type="button"
                     onClick={() => {
                       triggerHaptic('light');
                       onToggleSound();
-                      if (!soundEnabled) playKeypressSound('number', soundType);
+                      if (!soundEnabled) {
+                        setTimeout(() => playKeypressSound('number', soundType), 50);
+                      }
                     }}
-                    className={`w-11 h-6 flex items-center rounded-full p-0.5 duration-200 transition-colors cursor-pointer ${
-                      soundEnabled ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-600'
-                    }`}
+                    style={{
+                      backgroundColor: soundEnabled
+                        ? theme.accentBg
+                        : theme.isDark
+                        ? 'rgba(255,255,255,0.2)'
+                        : 'rgba(0,0,0,0.2)',
+                    }}
+                    className="w-10 h-5 flex items-center rounded-full p-0.5 duration-200 transition-colors cursor-pointer"
                   >
                     <div
-                      className={`bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform duration-200 ${
+                      className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ${
                         soundEnabled ? 'translate-x-5' : 'translate-x-0'
                       }`}
                     />
@@ -511,56 +608,72 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 </div>
 
                 {soundEnabled && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    {soundStyles.map((style) => (
-                      <div
-                        key={style.id}
-                        className={`p-2 rounded-xl border flex items-center justify-between text-xs transition-all ${
-                          soundType === style.id
-                            ? 'bg-purple-500/10 dark:bg-purple-500/20 border-purple-500 text-slate-900 dark:text-white font-bold ring-1 ring-purple-500/40'
-                            : 'bg-white/50 dark:bg-black/20 border-slate-200/60 dark:border-slate-700/40 text-slate-600 dark:text-slate-300'
-                        }`}
-                      >
-                        <button
-                          type="button"
+                  <div className="space-y-1.5 pt-1 border-t border-white/[0.06]">
+                    <span style={{ color: theme.textSecondary }} className="text-[10px] font-bold uppercase tracking-wider block mb-1">
+                      Choose Sound Style:
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {soundStyles.map((ss) => (
+                        <div
+                          key={ss.id}
                           onClick={() => {
                             triggerHaptic('light');
-                            onChangeSoundType(style.id);
-                            playKeypressSound('number', style.id);
+                            onChangeSoundType(ss.id);
+                            playKeypressSound('number', ss.id);
                           }}
-                          className="flex-1 text-left truncate cursor-pointer"
-                        >
-                          {style.label}
-                        </button>
-
-                        <button
-                          type="button"
-                          title="শব্দ শুনুন"
-                          onClick={() => {
-                            triggerHaptic('light');
-                            onChangeSoundType(style.id);
-                            playKeypressSound('number', style.id);
+                          style={{
+                            backgroundColor: soundType === ss.id ? theme.subtleAccentBg : 'transparent',
+                            borderColor: soundType === ss.id ? theme.accentColor : theme.itemBorder,
                           }}
-                          className="p-1 rounded-lg bg-purple-600 text-white hover:bg-purple-700 active:scale-90 transition-all cursor-pointer"
+                          className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                            soundType === ss.id ? 'shadow-sm ring-1 ring-emerald-500/20' : ''
+                          }`}
                         >
-                          <Play className="w-3 h-3 fill-current" />
-                        </button>
-                      </div>
-                    ))}
+                          <div>
+                            <div className="font-bold text-xs">{ss.label}</div>
+                            <div style={{ color: theme.textSecondary }} className="text-[10px]">
+                              {ss.desc}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playKeypressSound('equals', ss.id);
+                            }}
+                            style={{
+                              backgroundColor: theme.subtleAccentBg,
+                              color: theme.accentColor,
+                            }}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                            title="Play sound sample"
+                          >
+                            <Play className="w-3 h-3 fill-current" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Haptic Buzz & Thousands Separator */}
+              {/* Haptics & Thousands Separator Toggles */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-white/80 dark:bg-black/30 border border-slate-200 dark:border-slate-700/60">
-                  <div className="flex items-center gap-2">
-                    <Smartphone className="w-4 h-4 text-sky-500" />
+                <div
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="flex items-center justify-between p-3.5 rounded-2xl border"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Smartphone
+                      style={{ color: theme.accentColor }}
+                      className="w-4 h-4"
+                    />
                     <div>
-                      <div className="font-bold text-xs text-slate-900 dark:text-white">
-                        হ্যাপটিক ভাইব্রেশন
-                      </div>
-                      <div className="text-[10px] text-slate-500">স্পর্শের সাথে হালকা কম্পন</div>
+                      <div className="font-bold text-xs">Haptic Vibration</div>
+                      <div style={{ color: theme.textSecondary }} className="text-[10px]">Android touch response</div>
                     </div>
                   </div>
                   <button
@@ -569,9 +682,14 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                       triggerHaptic('medium');
                       onToggleHaptic();
                     }}
-                    className={`w-10 h-5 flex items-center rounded-full p-0.5 duration-200 transition-colors cursor-pointer ${
-                      hapticEnabled ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-600'
-                    }`}
+                    style={{
+                      backgroundColor: hapticEnabled
+                        ? theme.accentBg
+                        : theme.isDark
+                        ? 'rgba(255,255,255,0.2)'
+                        : 'rgba(0,0,0,0.2)',
+                    }}
+                    className="w-10 h-5 flex items-center rounded-full p-0.5 duration-200 transition-colors cursor-pointer"
                   >
                     <div
                       className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ${
@@ -581,14 +699,21 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-white/80 dark:bg-black/30 border border-slate-200 dark:border-slate-700/60">
-                  <div className="flex items-center gap-2">
-                    <Hash className="w-4 h-4 text-amber-500" />
+                <div
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="flex items-center justify-between p-3.5 rounded-2xl border"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Hash
+                      style={{ color: theme.accentColor }}
+                      className="w-4 h-4"
+                    />
                     <div>
-                      <div className="font-bold text-xs text-slate-900 dark:text-white">
-                        হাজারের কমা (Commas)
-                      </div>
-                      <div className="text-[10px] text-slate-500">১,০০০,০০০ আকারে গ্রুপ</div>
+                      <div className="font-bold text-xs">Thousands Commas</div>
+                      <div style={{ color: theme.textSecondary }} className="text-[10px]">1,000,000 formatting</div>
                     </div>
                   </div>
                   <button
@@ -597,9 +722,14 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                       triggerHaptic('light');
                       onToggleFormatThousands();
                     }}
-                    className={`w-10 h-5 flex items-center rounded-full p-0.5 duration-200 transition-colors cursor-pointer ${
-                      formatThousands ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-600'
-                    }`}
+                    style={{
+                      backgroundColor: formatThousands
+                        ? theme.accentBg
+                        : theme.isDark
+                        ? 'rgba(255,255,255,0.2)'
+                        : 'rgba(0,0,0,0.2)',
+                    }}
+                    className="w-10 h-5 flex items-center rounded-full p-0.5 duration-200 transition-colors cursor-pointer"
                   >
                     <div
                       className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ${
@@ -618,13 +748,20 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                     triggerHaptic('light');
                     onOpenThemes();
                   }}
-                  className="p-3 rounded-2xl bg-white/80 dark:bg-black/30 border border-slate-200 dark:border-slate-700/60 hover:border-purple-500 text-left transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="p-3.5 rounded-2xl border text-left transition-all cursor-pointer group hover:brightness-105"
                 >
-                  <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold mb-1">
+                  <div
+                    style={{ color: theme.accentColor }}
+                    className="flex items-center gap-2 font-bold mb-1"
+                  >
                     <Palette className="w-4 h-4" />
-                    <span>থিম স্টুডিও</span>
+                    <span>Theme Studio</span>
                   </div>
-                  <div className="text-[11px] text-slate-500 truncate">
+                  <div style={{ color: theme.textSecondary }} className="text-[11px] truncate">
                     {currentTheme?.name || 'Custom'}
                   </div>
                 </button>
@@ -635,13 +772,20 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                     triggerHaptic('light');
                     onOpenFonts();
                   }}
-                  className="p-3 rounded-2xl bg-white/80 dark:bg-black/30 border border-slate-200 dark:border-slate-700/60 hover:border-indigo-500 text-left transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="p-3.5 rounded-2xl border text-left transition-all cursor-pointer group hover:brightness-105"
                 >
-                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-1">
+                  <div
+                    style={{ color: theme.accentColor }}
+                    className="flex items-center gap-2 font-bold mb-1"
+                  >
                     <Type className="w-4 h-4" />
-                    <span>৫০+ ফন্ট সম্ভার</span>
+                    <span>52+ Fonts Gallery</span>
                   </div>
-                  <div className="text-[11px] text-slate-500 truncate">
+                  <div style={{ color: theme.textSecondary }} className="text-[11px] truncate">
                     {currentFont?.name || 'Roboto'}
                   </div>
                 </button>
@@ -651,17 +795,27 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-700/60 bg-white/50 dark:bg-black/20 flex items-center justify-between text-xs">
-          <span className="text-slate-500 dark:text-slate-400">
-            অফলাইনে স্বয়ংক্রিয় সেভ থাকে
+        <div
+          style={{
+            borderColor: theme.footerBorder,
+            backgroundColor: theme.footerBg,
+          }}
+          className="px-5 py-3.5 border-t flex items-center justify-between text-xs"
+        >
+          <span style={{ color: theme.textSecondary }}>
+            Automatically saved offline
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
+            style={{
+              backgroundColor: theme.accentBg,
+              color: theme.accentText,
+            }}
+            className="px-6 py-2 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5 hover:brightness-110"
           >
             <Check className="w-4 h-4" />
-            <span>সম্পন্ন (Done)</span>
+            <span>Apply & Done</span>
           </button>
         </div>
       </div>

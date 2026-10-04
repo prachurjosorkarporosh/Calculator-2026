@@ -19,11 +19,17 @@ export interface EvaluationResult {
   error?: string;
 }
 
-// Factorial calculation with safety bounds
+// Factorial calculation with safety bounds and float tolerance
 export function calculateFactorial(n: number): number {
-  if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n)) {
+  if (!Number.isFinite(n) || n < 0) {
     throw new Error('Invalid factorial');
   }
+  // Tolerate small floating point noise near integer e.g. 5.000000000000001
+  const nearestInt = Math.round(n);
+  if (Math.abs(n - nearestInt) > 1e-10) {
+    throw new Error('Invalid factorial');
+  }
+  n = nearestInt;
   if (n > 170) {
     throw new Error('Overflow');
   }
@@ -35,12 +41,16 @@ export function calculateFactorial(n: number): number {
   return result;
 }
 
-// Clean floating point inaccuracies (e.g., 0.1 + 0.2 = 0.30000000000000004 or sin(180deg) = 1.22e-16)
+// Clean floating point inaccuracies (e.g., 0.1 + 0.2 = 0.3 or sin(180deg) = 0)
 export function cleanFloat(val: number): number {
   if (Math.abs(val) < 1e-15) return 0;
-  // Round to 12 decimal places to remove floating noise
-  const rounded = parseFloat(val.toPrecision(12));
-  return rounded;
+  // If extremely close to an integer (e.g. 0.30000000000000004 or 4.999999999999999)
+  const nearestInt = Math.round(val);
+  if (Math.abs(val - nearestInt) < 1e-12) {
+    return nearestInt;
+  }
+  // Use 14 significant digits to prevent truncating large integers while eliminating binary float noise
+  return parseFloat(val.toPrecision(14));
 }
 
 // Format numbers for display
@@ -57,9 +67,7 @@ export function formatResultNumber(num: number): string {
   }
 
   const cleaned = cleanFloat(num);
-  // Convert to string without scientific notation if possible
-  const str = cleaned.toString();
-  return str;
+  return cleaned.toString();
 }
 
 /**
@@ -217,8 +225,8 @@ export class CalculatorEngine {
       '-': 2,
       '*': 3,
       '/': 3,
-      'u-': 4, // Unary negation
       '^': 5,
+      'u-': 6, // Unary negation binds higher than binary operators and exponent
     };
 
     const isRightAssociative = (op: string) => op === '^' || op === 'u-';
@@ -228,17 +236,28 @@ export class CalculatorEngine {
       const prevToken = i > 0 ? tokens[i - 1] : null;
 
       // Handle implicit multiplication:
-      // e.g. 2(3) -> 2 * (3), (2)(3) -> (2) * (3), 5π -> 5 * π, 2sin(30) -> 2 * sin(30)
-      if (
-        (token.type === 'LPAREN' ||
-          token.type === 'FUNCTION' ||
-          token.type === 'CONSTANT') &&
+      // Case 1: Number, constant, right paren, or postfix followed by (, function, or constant:
+      // e.g. 2(3), (2)(3), 5π, 2sin(30), 5!π
+      // Case 2: Constant, right paren, or postfix followed by number:
+      // e.g. (2)3, π5, e2, 5!2, 10%5
+      const isLeftImplicit =
         prevToken &&
         (prevToken.type === 'NUMBER' ||
           prevToken.type === 'CONSTANT' ||
           prevToken.type === 'RPAREN' ||
-          prevToken.type === 'POSTFIX')
-      ) {
+          prevToken.type === 'POSTFIX');
+
+      const isRightImplicit =
+        token.type === 'LPAREN' ||
+        token.type === 'FUNCTION' ||
+        token.type === 'CONSTANT' ||
+        (token.type === 'NUMBER' &&
+          prevToken &&
+          (prevToken.type === 'RPAREN' ||
+            prevToken.type === 'CONSTANT' ||
+            prevToken.type === 'POSTFIX'));
+
+      if (isLeftImplicit && isRightImplicit) {
         const mulToken: Token = { type: 'OPERATOR', value: '*' };
         while (
           operatorStack.length > 0 &&
@@ -389,30 +408,82 @@ export class CalculatorEngine {
 
         switch (token.value) {
           case 'sin': {
-            const rad = angleMode === 'DEG' ? toRadians(a) : a;
-            // Clean up exact degrees like sin(180) = 0
-            if (angleMode === 'DEG' && a % 180 === 0) {
-              stack.push(0);
-            } else {
-              stack.push(Math.sin(rad));
+            if (angleMode === 'DEG') {
+              const normDeg = ((a % 360) + 360) % 360;
+              if (normDeg === 0 || normDeg === 180) {
+                stack.push(0);
+                break;
+              }
+              if (normDeg === 90) {
+                stack.push(1);
+                break;
+              }
+              if (normDeg === 270) {
+                stack.push(-1);
+                break;
+              }
+              if (normDeg === 30 || normDeg === 150) {
+                stack.push(0.5);
+                break;
+              }
+              if (normDeg === 210 || normDeg === 330) {
+                stack.push(-0.5);
+                break;
+              }
             }
+            const rad = angleMode === 'DEG' ? toRadians(a) : a;
+            stack.push(cleanFloat(Math.sin(rad)));
             break;
           }
           case 'cos': {
-            const rad = angleMode === 'DEG' ? toRadians(a) : a;
-            if (angleMode === 'DEG' && (a - 90) % 180 === 0) {
-              stack.push(0);
-            } else {
-              stack.push(Math.cos(rad));
+            if (angleMode === 'DEG') {
+              const normDeg = ((a % 360) + 360) % 360;
+              if (normDeg === 90 || normDeg === 270) {
+                stack.push(0);
+                break;
+              }
+              if (normDeg === 0) {
+                stack.push(1);
+                break;
+              }
+              if (normDeg === 180) {
+                stack.push(-1);
+                break;
+              }
+              if (normDeg === 60 || normDeg === 300) {
+                stack.push(0.5);
+                break;
+              }
+              if (normDeg === 120 || normDeg === 240) {
+                stack.push(-0.5);
+                break;
+              }
             }
+            const rad = angleMode === 'DEG' ? toRadians(a) : a;
+            stack.push(cleanFloat(Math.cos(rad)));
             break;
           }
           case 'tan': {
-            if (angleMode === 'DEG' && (a - 90) % 180 === 0) {
-              throw new Error('Undefined (tan 90°)');
+            if (angleMode === 'DEG') {
+              const normDeg = ((a % 360) + 360) % 360;
+              if (normDeg === 90 || normDeg === 270) {
+                throw new Error('Undefined (tan 90°)');
+              }
+              if (normDeg === 0 || normDeg === 180) {
+                stack.push(0);
+                break;
+              }
+              if (normDeg === 45 || normDeg === 225) {
+                stack.push(1);
+                break;
+              }
+              if (normDeg === 135 || normDeg === 315) {
+                stack.push(-1);
+                break;
+              }
             }
             const rad = angleMode === 'DEG' ? toRadians(a) : a;
-            stack.push(Math.tan(rad));
+            stack.push(cleanFloat(Math.tan(rad)));
             break;
           }
           case 'asin': {

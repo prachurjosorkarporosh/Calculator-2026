@@ -1,21 +1,13 @@
 /**
- * Top-Right Overflow Menu
+ * Top-Right Overflow Menu (Theme-Adaptive)
  * Developer: Prachurjo Sorkar Porosh
  * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
- * Implements Android Material 3 popup menu with:
- * 1. Clear history
- * 2. Sound effects quick toggle
- * 3. Choose theme (12+ themes)
- * 4. 50+ Fonts gallery
- * 5. App Icon Changer
- * 6. Personalize & Sizing
- * 7. Settings
- * 8. Privacy Policy
- * 9. Send feedback
- * 10. Help
- * 11. About
+ * Dynamically adapts to the currently active Theme Palette:
+ * - Adapts to light, dark, pastel, OLED, and custom theme colors
+ * - Tactile sound toggle and instant dialog routers
+ * - Mobile touch outside dismiss
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -35,12 +27,16 @@ import {
   Database,
   Smartphone,
   Sparkles,
+  ChevronRight,
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
+import { ThemePalette } from '../data/themes.ts';
+import { getModalThemeStyles } from '../utils/themeStyles.ts';
 
 interface ThreeDotMenuProps {
   isOpen: boolean;
+  palette?: ThemePalette;
   soundEnabled: boolean;
   onToggleSound: () => void;
   onClose: () => void;
@@ -61,6 +57,7 @@ interface ThreeDotMenuProps {
 
 export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
   isOpen,
+  palette,
   soundEnabled,
   onToggleSound,
   onClose,
@@ -79,9 +76,10 @@ export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
   onOpenAbout,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  const theme = getModalThemeStyles(palette);
 
   useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose();
       }
@@ -89,9 +87,11 @@ export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
 
     if (isOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('touchstart', handleOutsideClick, { passive: true });
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
     };
   }, [isOpen, onClose]);
 
@@ -115,200 +115,449 @@ export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className="absolute top-12 right-4 z-50 min-w-[230px] py-1.5 bg-[#EEF2F6] dark:bg-[#25282D] rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 animate-in fade-in zoom-in-95 duration-100 origin-top-right text-slate-800 dark:text-slate-100 select-none max-h-[85vh] overflow-y-auto"
+      role="menu"
+      aria-orientation="vertical"
+      style={{
+        backgroundColor: theme.dialogBg,
+        borderColor: theme.dialogBorder,
+        color: theme.textPrimary,
+        boxShadow: theme.isDark
+          ? '0 20px 50px rgba(0,0,0,0.65)'
+          : '0 20px 45px rgba(0,0,0,0.18)',
+      }}
+      className="absolute top-14 right-3.5 z-50 w-72 p-2 rounded-2xl border backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 origin-top-right select-none max-h-[88vh] overflow-y-auto scrollbar-thin transition-colors"
     >
-      <button
-        type="button"
-        onClick={() => handleItemClick(onClearHistory)}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
-      >
-        <Trash2 className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        <span>Clear history</span>
-      </button>
-
-      {/* Keypress Sound Quick Switch */}
+      {/* SECTION 1: QUICK ACTIONS */}
       <div
-        onClick={handleSoundToggle}
-        className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
+        style={{ color: theme.textMuted }}
+        className="px-2.5 pt-1.5 pb-1 flex items-center justify-between text-[10px] font-bold tracking-wider uppercase"
       >
-        <div className="flex items-center gap-3">
-          {soundEnabled ? (
-            <Volume2 className="w-4 h-4 text-[#087A36] dark:text-emerald-400" />
-          ) : (
-            <VolumeX className="w-4 h-4 text-slate-400" />
-          )}
-          <span>Sound effects</span>
-        </div>
-        <div
-          className={`w-9 h-5 flex items-center rounded-full p-0.5 duration-200 transition-colors ${
-            soundEnabled
-              ? 'bg-[#087A36] dark:bg-emerald-500'
-              : 'bg-slate-300 dark:bg-slate-600'
-          }`}
+        <span>Quick Actions</span>
+        <span
+          style={{ color: theme.accentColor }}
+          className="text-[9px] font-mono font-bold"
         >
-          <div
-            className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200 ${
-              soundEnabled ? 'translate-x-4' : 'translate-x-0'
-            }`}
-          />
-        </div>
+          Offline
+        </span>
       </div>
 
-      {/* Voice Calculator */}
-      {onOpenVoice && (
+      <div className="space-y-0.5">
+        {/* Clear History */}
         <button
           type="button"
-          onClick={() => handleItemClick(onOpenVoice)}
-          className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
+          onClick={() => handleItemClick(onClearHistory)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
         >
           <div className="flex items-center gap-3">
-            <Mic className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>ভয়েস ক্যালকুলেটর (Voice)</span>
+            <div className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Trash2 className="w-3.5 h-3.5" />
+            </div>
+            <span>Clear History</span>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold uppercase">
-            New
+          <span style={{ color: theme.textMuted }} className="text-[10px]">
+            Clean
           </span>
         </button>
-      )}
 
-      {/* Phone Database Manager */}
-      {onOpenDatabase && (
-        <button
-          type="button"
-          onClick={() => handleItemClick(onOpenDatabase)}
-          className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
+        {/* Keypress Sound Quick Switch */}
+        <div
+          onClick={handleSoundToggle}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium cursor-pointer transition-all group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08]'
+              : 'hover:bg-black/[0.06]'
+          }`}
         >
           <div className="flex items-center gap-3">
-            <Database className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span>ফোন ডাটাবেজ (Phone DB)</span>
+            <div
+              style={{
+                backgroundColor: soundEnabled ? theme.subtleAccentBg : theme.itemBg,
+                color: soundEnabled ? theme.accentColor : theme.textMuted,
+              }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+            >
+              {soundEnabled ? (
+                <Volume2 className="w-3.5 h-3.5" />
+              ) : (
+                <VolumeX className="w-3.5 h-3.5" />
+              )}
+            </div>
+            <div>
+              <div className="leading-tight">Key Audio Sound</div>
+              <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                {soundEnabled ? 'Click Sound Active' : 'Muted'}
+              </div>
+            </div>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold uppercase">
-            DB
-          </span>
-        </button>
-      )}
-
-      <div className="h-[1px] bg-slate-200 dark:bg-slate-700/60 my-1 mx-2" />
-
-      {/* Theme Studio Dedicated Page */}
-      <button
-        type="button"
-        onClick={() => handleItemClick(onOpenThemes)}
-        className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <Palette className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-          <span>থিম স্টুডিও (Theme Studio)</span>
+          <div
+            style={{
+              backgroundColor: soundEnabled ? theme.accentBg : (theme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'),
+            }}
+            className="w-9 h-5 flex items-center rounded-full p-0.5 transition-colors"
+          >
+            <div
+              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                soundEnabled ? 'translate-x-4' : 'translate-x-0'
+              }`}
+            />
+          </div>
         </div>
-        <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold uppercase">
-          Studio
-        </span>
-      </button>
 
-      {/* 50+ Fonts Gallery */}
-      <button
-        type="button"
-        onClick={() => handleItemClick(onOpenFonts)}
-        className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
+        {/* Voice Calculator */}
+        {onOpenVoice && (
+          <button
+            type="button"
+            onClick={() => handleItemClick(onOpenVoice)}
+            style={{ color: theme.textPrimary }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+              theme.isDark
+                ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+                : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                style={{
+                  backgroundColor: theme.subtleAccentBg,
+                  color: theme.accentColor,
+                }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform"
+              >
+                <Mic className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left">
+                <div className="leading-tight">Voice Calculator</div>
+                <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                  মুখে বলে সরাসরি হিসাব
+                </div>
+              </div>
+            </div>
+            <span
+              style={{
+                backgroundColor: theme.subtleAccentBg,
+                color: theme.accentColor,
+              }}
+              className="text-[10px] px-1.5 py-0.5 rounded-md font-medium"
+            >
+              বাংলা / EN
+            </span>
+          </button>
+        )}
+
+        {/* Phone Database Manager */}
+        {onOpenDatabase && (
+          <button
+            type="button"
+            onClick={() => handleItemClick(onOpenDatabase)}
+            style={{ color: theme.textPrimary }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+              theme.isDark
+                ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+                : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-sky-500/15 text-sky-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Database className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left">
+                <div className="leading-tight">Phone Database</div>
+                <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                  লোকাল ডাটা ও ব্যাকআপ
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-sky-500/20 text-sky-600 dark:text-sky-300 font-mono">
+              IndexedDB
+            </span>
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{ backgroundColor: theme.headerBorder }}
+        className="h-[1px] my-2 mx-1"
+      />
+
+      {/* SECTION 2: APPEARANCE & THEMES */}
+      <div
+        style={{ color: theme.textMuted }}
+        className="px-2.5 pt-0.5 pb-1 flex items-center justify-between text-[10px] font-bold tracking-wider uppercase"
       >
-        <div className="flex items-center gap-3">
-          <Type className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-          <span>50+ Fonts Gallery</span>
-        </div>
-        <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold">
-          52
-        </span>
-      </button>
+        <span>Appearance & Styles</span>
+      </div>
 
-      {/* App Icon Changer */}
-      {onOpenAppIcons && (
+      <div className="space-y-0.5">
+        {/* Theme Studio */}
         <button
           type="button"
-          onClick={() => handleItemClick(onOpenAppIcons)}
-          className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
+          onClick={() => handleItemClick(onOpenThemes)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
         >
           <div className="flex items-center gap-3">
-            <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>অ্যাপ আইকন (App Icon)</span>
+            <div className="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Palette className="w-3.5 h-3.5" />
+            </div>
+            <div className="text-left">
+              <div className="leading-tight">Theme Studio</div>
+              <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                21+ Themes & 66 Wallpapers
+              </div>
+            </div>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold uppercase">
-            Icon
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-purple-500/20 text-purple-600 dark:text-purple-300 font-medium">
+            Studio
           </span>
         </button>
-      )}
 
-      {/* Sizing & Customization */}
-      <button
-        type="button"
-        onClick={() => handleItemClick(onOpenCustomization)}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
-      >
-        <SlidersHorizontal className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-        <span>Personalize & Sizing</span>
-      </button>
-
-      <button
-        type="button"
-        onClick={() => handleItemClick(onOpenSettings)}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
-      >
-        <Settings className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        <span>Settings</span>
-      </button>
-
-      {onOpenOnboarding && (
+        {/* Typography */}
         <button
           type="button"
-          onClick={() => handleItemClick(onOpenOnboarding)}
-          className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors text-purple-600 dark:text-purple-400"
+          onClick={() => handleItemClick(onOpenFonts)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
         >
           <div className="flex items-center gap-3">
-            <Sparkles className="w-4 h-4" />
-            <span>স্বাগতম সেটআপ (Welcome Setup)</span>
+            <div className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Type className="w-3.5 h-3.5" />
+            </div>
+            <div className="text-left">
+              <div className="leading-tight">Typography</div>
+              <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                Display & keypad fonts
+              </div>
+            </div>
           </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 font-bold uppercase">
-            100+
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 font-medium">
+            52 Fonts
           </span>
         </button>
-      )}
 
-      <div className="h-[1px] bg-slate-200 dark:bg-slate-700/60 my-1 mx-2" />
+        {/* App Icon Style */}
+        {onOpenAppIcons && (
+          <button
+            type="button"
+            onClick={() => handleItemClick(onOpenAppIcons)}
+            style={{ color: theme.textPrimary }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+              theme.isDark
+                ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+                : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Smartphone className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left">
+                <div className="leading-tight">App Icon Style</div>
+                <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                  Launcher icon style
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-600 dark:text-amber-300 font-medium">
+              10 Icons
+            </span>
+          </button>
+        )}
 
-      <button
-        type="button"
-        onClick={() => handleItemClick(onOpenPrivacy)}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
+        {/* Personalize & Sizing */}
+        <button
+          type="button"
+          onClick={() => handleItemClick(onOpenCustomization)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-teal-500/15 text-teal-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+            </div>
+            <div className="text-left">
+              <div className="leading-tight">Personalize & Sizing</div>
+              <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                Scale, shapes, sound styles
+              </div>
+            </div>
+          </div>
+          <ChevronRight style={{ color: theme.textMuted }} className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-all" />
+        </button>
+
+        {/* Welcome Setup Guide */}
+        {onOpenOnboarding && (
+          <button
+            type="button"
+            onClick={() => handleItemClick(onOpenOnboarding)}
+            style={{ color: theme.textPrimary }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+              theme.isDark
+                ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+                : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-pink-500/15 text-pink-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left">
+                <div className="leading-tight">Welcome Setup</div>
+                <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                  Re-run onboarding tour
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-pink-500/20 text-pink-600 dark:text-pink-300 font-medium">
+              Guide
+            </span>
+          </button>
+        )}
+      </div>
+
+      <div
+        style={{ backgroundColor: theme.headerBorder }}
+        className="h-[1px] my-2 mx-1"
+      />
+
+      {/* SECTION 3: SYSTEM & PREFERENCES */}
+      <div
+        style={{ color: theme.textMuted }}
+        className="px-2.5 pt-0.5 pb-1 flex items-center justify-between text-[10px] font-bold tracking-wider uppercase"
       >
-        <ShieldCheck className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        <span>Privacy Policy</span>
-      </button>
+        <span>System & Info</span>
+      </div>
 
-      <button
-        type="button"
-        onClick={() => handleItemClick(onSendFeedback)}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
-      >
-        <Mail className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        <span>Send feedback</span>
-      </button>
+      <div className="space-y-0.5">
+        <button
+          type="button"
+          onClick={() => handleItemClick(onOpenSettings)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{ backgroundColor: theme.itemBg, color: theme.textSecondary }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform"
+            >
+              <Settings className="w-3.5 h-3.5" />
+            </div>
+            <span>Settings</span>
+          </div>
+          <ChevronRight style={{ color: theme.textMuted }} className="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        onClick={() => handleItemClick(onOpenHelp)}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
-      >
-        <HelpCircle className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        <span>Help</span>
-      </button>
+        <button
+          type="button"
+          onClick={() => handleItemClick(onOpenPrivacy)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{ backgroundColor: theme.itemBg, color: theme.textSecondary }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </div>
+            <span>Privacy Policy</span>
+          </div>
+          <span style={{ color: theme.accentColor }} className="text-[10px] font-mono font-bold">
+            100% Offline
+          </span>
+        </button>
 
-      <button
-        type="button"
-        onClick={() => handleItemClick(onOpenAbout)}
-        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
-      >
-        <Info className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-        <span>About</span>
-      </button>
+        <button
+          type="button"
+          onClick={() => handleItemClick(onSendFeedback)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{ backgroundColor: theme.itemBg, color: theme.textSecondary }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform"
+            >
+              <Mail className="w-3.5 h-3.5" />
+            </div>
+            <span>Send Feedback</span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleItemClick(onOpenHelp)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{ backgroundColor: theme.itemBg, color: theme.textSecondary }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+            </div>
+            <span>Help & Guide</span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleItemClick(onOpenAbout)}
+          style={{ color: theme.textPrimary }}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+            theme.isDark
+              ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+              : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{ backgroundColor: theme.itemBg, color: theme.textSecondary }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform"
+            >
+              <Info className="w-3.5 h-3.5" />
+            </div>
+            <span>About Calculator</span>
+          </div>
+          <span style={{ color: theme.textMuted }} className="text-[10px]">
+            v1.0.0
+          </span>
+        </button>
+      </div>
     </div>
   );
 };

@@ -193,7 +193,7 @@ export class LocalStorageManager {
   static getKeypadScale(): KeypadScale {
     try {
       const val = localStorage.getItem(STORAGE_KEYS.KEYPAD_SCALE);
-      if (val === 'compact' || val === 'standard' || val === 'spacious' || val === 'jumbo') {
+      if (val === 'compact' || val === 'standard' || val === 'spacious' || val === 'jumbo' || val === 'ultra') {
         return val;
       }
       return 'standard';

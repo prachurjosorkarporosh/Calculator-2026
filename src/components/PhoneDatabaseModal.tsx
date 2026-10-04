@@ -1,8 +1,10 @@
 /**
- * Phone Database Manager & Backup Modal (ফোন ডাটাবেজ ও ব্যাকআপ)
+ * Phone Database Manager & Backup Modal (Theme-Adaptive)
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
+ *
+ * Dynamically adapts to the currently active Theme Palette (Light, Dark, OLED, Cyber, Pastel, Custom).
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -19,6 +21,7 @@ import {
   AlertCircle,
   FileJson,
   Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   PhoneDatabaseManager,
@@ -27,9 +30,12 @@ import {
 } from '../data/phoneDatabase.ts';
 import { HistoryItem, CustomThemeColors, UserPreferences } from '../types.ts';
 import { triggerHaptic } from '../utils/haptics.ts';
+import { ThemePalette } from '../data/themes.ts';
+import { getModalThemeStyles } from '../utils/themeStyles.ts';
 
 interface PhoneDatabaseModalProps {
   isOpen: boolean;
+  palette?: ThemePalette;
   history: HistoryItem[];
   customColors: CustomThemeColors | null;
   preferences: Partial<UserPreferences>;
@@ -44,6 +50,7 @@ interface PhoneDatabaseModalProps {
 
 export const PhoneDatabaseModal: React.FC<PhoneDatabaseModalProps> = ({
   isOpen,
+  palette,
   history,
   customColors,
   preferences,
@@ -55,7 +62,10 @@ export const PhoneDatabaseModal: React.FC<PhoneDatabaseModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const theme = getModalThemeStyles(palette);
 
   useEffect(() => {
     if (isOpen) {
@@ -89,7 +99,7 @@ export const PhoneDatabaseModal: React.FC<PhoneDatabaseModalProps> = ({
       URL.revokeObjectURL(url);
 
       setIsSuccess(true);
-      setStatusMessage('ডাটাবেজ ফাইল সফলভাবে ডাউনলোড হয়েছে (Backup downloaded)!');
+      setStatusMessage('ডাটাবেজ ফাইল ডাউনলোড সম্পন্ন হয়েছে (Backup downloaded)!');
     } catch {
       setIsSuccess(false);
       setStatusMessage('ব্যাকআপ তৈরিতে ত্রুটি হয়েছে।');
@@ -122,119 +132,164 @@ export const PhoneDatabaseModal: React.FC<PhoneDatabaseModalProps> = ({
     };
     reader.readAsText(file);
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 animate-in fade-in duration-150 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#EEF2F6] dark:bg-[#1E2126] text-slate-800 dark:text-slate-100 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700/60 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-150 select-none">
+      <div
+        style={{
+          backgroundColor: theme.dialogBg,
+          borderColor: theme.dialogBorder,
+          color: theme.textPrimary,
+          boxShadow: theme.isDark
+            ? '0 25px 60px rgba(0,0,0,0.7)'
+            : '0 20px 50px rgba(0,0,0,0.18)',
+        }}
+        className="w-full max-w-lg rounded-3xl border overflow-hidden flex flex-col max-h-[92vh] transition-colors"
+      >
         {/* Header */}
-        <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between bg-white/50 dark:bg-black/20">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+        <div
+          style={{
+            borderColor: theme.headerBorder,
+            backgroundColor: theme.headerBg,
+          }}
+          className="px-5 py-4 border-b flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-sky-500/15 text-sky-500 flex items-center justify-center border border-sky-500/20">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-1.5">
-                <span>ফোন ডাটাবেজ ও ব্যাকআপ</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold uppercase">
-                  Phone DB
+              <h3 className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-2">
+                <span>Phone Database & Backup</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-600 dark:text-sky-300 font-mono font-bold">
+                  IndexedDB
                 </span>
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                সব ফোনে স্থায়ী ডাটা সংরক্ষণ, ব্যাকআপ ও রিস্টোর
+              <p style={{ color: theme.textSecondary }} className="text-[11px]">
+                স্থানীয় হার্ডওয়্যার স্টোরেজ, পূর্ণ ব্যাকআপ ও স্থানান্তর
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            style={{ color: theme.textSecondary }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              theme.isDark ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-black/10 hover:text-black'
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
+        {/* Content Body */}
         <div className="p-5 flex-1 overflow-y-auto space-y-4">
-          {/* Status Message Alert */}
+          {/* Status Message Notification */}
           {statusMessage && (
             <div
-              className={`p-3 rounded-2xl flex items-center gap-2.5 text-xs font-medium animate-in fade-in duration-150 ${
+              className={`p-3 rounded-2xl flex items-center gap-2.5 text-xs font-semibold animate-in fade-in duration-150 ${
                 isSuccess
-                  ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200'
-                  : 'bg-rose-500/15 border border-rose-500/30 text-rose-800 dark:text-rose-200'
+                  ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300'
+                  : 'bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300'
               }`}
             >
               {isSuccess ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
               )}
               <span>{statusMessage}</span>
             </div>
           )}
 
-          {/* Phone Database Status Card */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-black/30 border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-3">
+          {/* Database Metrics Card */}
+          <div
+            style={{
+              backgroundColor: theme.itemBg,
+              borderColor: theme.itemBorder,
+            }}
+            className="p-4 rounded-2xl border space-y-3"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                <HardDrive className="w-4 h-4 text-blue-500" />
-                <span>ডাটাবেজ অবস্থা (Database Status)</span>
+              <span className="text-xs font-bold flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-sky-500" />
+                <span>Internal Hardware Engine</span>
               </span>
-              <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                সক্রিয় (Active)
+              <span
+                style={{
+                  backgroundColor: theme.subtleAccentBg,
+                  color: theme.accentColor,
+                }}
+                className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full"
+              >
+                <span
+                  style={{ backgroundColor: theme.accentColor }}
+                  className="w-1.5 h-1.5 rounded-full animate-pulse"
+                />
+                Active & Encrypted
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/50">
-                <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                  সংরক্ষিত হিসাব (Calculations)
-                </div>
-                <div className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
-                  {stats?.historyCount ?? history.length} টি
+              <div
+                style={{
+                  backgroundColor: theme.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-3 rounded-xl border"
+              >
+                <div style={{ color: theme.textSecondary }} className="text-[10px] font-medium">History Entries</div>
+                <div className="text-xl font-bold mt-0.5">
+                  {stats?.historyCount ?? history.length}
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/50">
-                <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                  ডাটাবেজ সাইজ (Size)
-                </div>
-                <div className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
+              <div
+                style={{
+                  backgroundColor: theme.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-3 rounded-xl border"
+              >
+                <div style={{ color: theme.textSecondary }} className="text-[10px] font-medium">Database Footprint</div>
+                <div className="text-xl font-bold mt-0.5">
                   ~{stats?.estimatedSizeKb ?? 2} KB
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 col-span-2 flex items-center justify-between">
+              <div
+                style={{
+                  backgroundColor: theme.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-3 rounded-xl border col-span-2 flex items-center justify-between"
+              >
                 <div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                    স্টোরেজ ইঞ্জিন (Storage Engine)
-                  </div>
-                  <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 mt-0.5">
-                    {stats?.engine ?? 'IndexedDB (Phone Native Database)'}
+                  <div style={{ color: theme.textSecondary }} className="text-[10px] font-medium">Storage Engine</div>
+                  <div className="text-xs font-bold text-sky-500 mt-0.5 font-mono">
+                    {stats?.engine ?? 'IndexedDB (Phone Native Database v2)'}
                   </div>
                 </div>
-                <Smartphone className="w-5 h-5 text-slate-400" />
+                <Smartphone style={{ color: theme.textMuted }} className="w-5 h-5" />
               </div>
             </div>
 
-            <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <div style={{ color: theme.textSecondary }} className="flex items-center gap-2 pt-1 text-[11px]">
               <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
               <span>
-                অফলাইন-ফার্স্ট: ইন্টারনেট না থাকলেও আপনার ফোনের ইন্টারনাল ডাটাবেজে সবকিছু সুরক্ষিত থাকে।
+                ১০০% অফলাইন: কোনো ইন্টারনেট সংযোগ বা ক্লাউড সার্ভারের প্রয়োজন নেই।
               </span>
             </div>
           </div>
 
           {/* Backup & Restore Action Buttons */}
           <div className="space-y-2.5">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              ব্যাকআপ ও স্থানান্তর (Backup & Cross-Phone Sync):
+            <span style={{ color: theme.textSecondary }} className="text-xs font-bold">
+              ডাটা স্থানান্তর ও ব্যাকআপ (Backup & Transfer):
             </span>
 
             {/* Export Backup Button */}
@@ -242,91 +297,160 @@ export const PhoneDatabaseModal: React.FC<PhoneDatabaseModalProps> = ({
               type="button"
               disabled={isExporting}
               onClick={handleExportBackup}
-              className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-black/20 hover:bg-black/5 dark:hover:bg-white/10 border border-slate-200 dark:border-slate-700/60 shadow-sm transition-all active:scale-[0.99] text-left"
+              style={{
+                backgroundColor: theme.itemBg,
+                borderColor: theme.itemBorder,
+                color: theme.textPrimary,
+              }}
+              className={`w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all active:scale-[0.99] text-left cursor-pointer group ${
+                theme.isDark ? 'hover:bg-white/[0.08]' : 'hover:bg-black/[0.08]'
+              }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                  <Download className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Download className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-white">
-                    ডাটাবেজ ব্যাকআপ ফাইল ডাউনলোড করুন (Export Backup)
+                  <div className="text-xs font-bold">
+                    {isExporting ? 'তৈরি হচ্ছে...' : 'ব্যাকআপ ডাউনলোড করুন (Export JSON)'}
                   </div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                    সব হিসাব ও থিম .json ফাইল হিসেবে আপনার ফোনে সেভ হবে
+                  <div style={{ color: theme.textSecondary }} className="text-[11px]">
+                    সব হিসাব, কাস্টম থিম ও সেটিংস ব্যাকআপ ফাইল হিসেবে সংরক্ষণ করুন
                   </div>
                 </div>
               </div>
-              <FileJson className="w-4 h-4 text-slate-400 shrink-0" />
+              <FileJson style={{ color: theme.textMuted }} className="w-4 h-4 group-hover:text-emerald-500 transition-colors" />
             </button>
 
-            {/* Hidden File Input for Restore */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json,application/json"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-
-            {/* Import / Restore Button */}
-            <button
-              type="button"
+            {/* Import Backup Button */}
+            <div
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-black/20 hover:bg-black/5 dark:hover:bg-white/10 border border-slate-200 dark:border-slate-700/60 shadow-sm transition-all active:scale-[0.99] text-left"
+              style={{
+                backgroundColor: theme.itemBg,
+                borderColor: theme.itemBorder,
+                color: theme.textPrimary,
+              }}
+              className={`w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all active:scale-[0.99] text-left cursor-pointer group ${
+                theme.isDark ? 'hover:bg-white/[0.08]' : 'hover:bg-black/[0.08]'
+              }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-                  <Upload className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Upload className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-white">
-                    যেকোনো ফোনে ডাটাবেজ রিস্টোর করুন (Import to Any Phone)
+                  <div className="text-xs font-bold">
+                    ব্যাকআপ রিস্টোর করুন (Restore JSON)
                   </div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                    আগের ব্যাকআপ ফাইল সিলেক্ট করে সব হিসাব তাৎক্ষণিক ফিরিয়ে আনুন
+                  <div style={{ color: theme.textSecondary }} className="text-[11px]">
+                    পূর্বের বা অন্য ফোনের ব্যাকআপ ফাইল আপলোড করে পুনরায় ফিরে পান
                   </div>
                 </div>
               </div>
-              <Upload className="w-4 h-4 text-slate-400 shrink-0" />
-            </button>
+              <FileJson style={{ color: theme.textMuted }} className="w-4 h-4 group-hover:text-sky-500 transition-colors" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
 
-            {/* Clear Database */}
+            {/* Clear Database Button */}
             <button
               type="button"
               onClick={() => {
-                if (window.confirm('আপনি কি নিশ্চিত যে ডাটাবেজের সব হিসাব মুছে ফেলতে চান?')) {
-                  triggerHaptic('medium');
-                  onClearDatabase();
-                  PhoneDatabaseManager.clearAllHistory();
-                  setStatusMessage('ডাটাবেজ সম্পূর্ণ পরিষ্কার করা হয়েছে (Cleared)');
-                  setIsSuccess(true);
-                }
+                triggerHaptic('medium');
+                setShowClearConfirm(true);
               }}
-              className="w-full flex items-center justify-between p-3 rounded-xl text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
+              className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/15 border border-rose-500/20 transition-all active:scale-[0.99] text-left cursor-pointer group"
             >
-              <span className="flex items-center gap-2">
-                <Trash2 className="w-4 h-4" />
-                <span>ডাটাবেজের সব হিসেব পরিষ্কার করুন (Clear DB)</span>
-              </span>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-rose-500">
+                    ডাটাবেজ রিসেট করুন (Reset Database)
+                  </div>
+                  <div className="text-[11px] text-rose-500/80">
+                    সকল হিস্ট্রি ও ক্যাশ মুছে দিয়ে ডিফল্ট অবস্থায় ফিরিয়ে আনে
+                  </div>
+                </div>
+              </div>
             </button>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-700/60 bg-white/50 dark:bg-black/20 flex items-center justify-between text-xs">
-          <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>সকল অ্যান্ড্রয়েড ও আইফোনে সামঞ্জস্যপূর্ণ</span>
-          </span>
+        <div
+          style={{
+            borderColor: theme.footerBorder,
+            backgroundColor: theme.footerBg,
+          }}
+          className="px-5 py-3.5 border-t flex items-center justify-end"
+        >
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-full bg-[#087A36] hover:bg-[#076c30] text-white font-semibold transition-colors shadow-sm"
+            style={{
+              backgroundColor: theme.accentBg,
+              color: theme.accentText,
+            }}
+            className="px-6 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
           >
-            সম্পন্ন (Done)
+            Done
           </button>
         </div>
+
+        {/* Confirmation Modal for Reset */}
+        {showClearConfirm && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-100">
+            <div
+              style={{
+                backgroundColor: theme.dialogBg,
+                borderColor: theme.dialogBorder,
+                color: theme.textPrimary,
+              }}
+              className="w-full max-w-xs rounded-2xl p-5 border shadow-2xl text-center"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-500 mx-auto flex items-center justify-center mb-3">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold">Reset Phone Database?</h3>
+              <p style={{ color: theme.textSecondary }} className="text-xs mt-1 mb-4 leading-relaxed">
+                This will wipe all calculation history and reset custom color palettes to factory default.
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowClearConfirm(false)}
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    color: theme.textPrimary,
+                  }}
+                  className="flex-1 py-2 text-xs font-semibold rounded-xl cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('medium');
+                    onClearDatabase();
+                    setShowClearConfirm(false);
+                    setStatusMessage('ডাটাবেজ সফলভাবে রিসেট করা হয়েছে!');
+                    setIsSuccess(true);
+                  }}
+                  className="flex-1 py-2 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-500 text-white cursor-pointer"
+                >
+                  Reset All
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

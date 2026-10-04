@@ -1,24 +1,37 @@
 /**
- * Settings Dialog
+ * Settings Dialog (Theme-Adaptive)
  * Developer: Prachurjo Sorkar Porosh
  * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
- * Implements Android settings options:
- * - Keypress sound effect toggle
- * - Haptic feedback toggle
- * - App Icon style launcher
- * - Angle mode default
+ * Dynamically adapts to the currently active Theme Palette (Light, Dark, OLED, Cyber, Pastel, Custom).
  */
 
 import React from 'react';
-import { Volume2, VolumeX, Smartphone, Settings, Sun, Moon, Clock } from 'lucide-react';
+import {
+  Volume2,
+  VolumeX,
+  Smartphone,
+  Settings,
+  Sun,
+  Moon,
+  Clock,
+  ChevronRight,
+  ShieldCheck,
+  Sparkles,
+  Sliders,
+  CheckCircle2,
+  X,
+} from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
 import { getAppIconDataUri } from '../data/appIcons.ts';
+import { ThemePalette } from '../data/themes.ts';
+import { getModalThemeStyles } from '../utils/themeStyles.ts';
 
 interface SettingsDialogProps {
   isOpen: boolean;
+  palette?: ThemePalette;
   soundEnabled: boolean;
   onToggleSound: () => void;
   systemTimeThemeEnabled?: boolean;
@@ -31,6 +44,7 @@ interface SettingsDialogProps {
 
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   isOpen,
+  palette,
   soundEnabled,
   onToggleSound,
   systemTimeThemeEnabled = false,
@@ -42,60 +56,109 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const theme = getModalThemeStyles(palette);
   const currentHour = new Date().getHours();
   const isDayTime = currentHour >= 6 && currentHour < 18;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-sm bg-[#EEF2F6] dark:bg-[#25282D] rounded-3xl p-6 shadow-2xl border border-slate-200/50 dark:border-slate-700/50 text-slate-800 dark:text-slate-100 select-none">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-2xl bg-[#B9E1F7] dark:bg-[#004A77] flex items-center justify-center text-[#001D35] dark:text-[#C2E7FF]">
-            <Settings className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md animate-in fade-in duration-150 select-none">
+      <div
+        style={{
+          backgroundColor: theme.dialogBg,
+          borderColor: theme.dialogBorder,
+          color: theme.textPrimary,
+          boxShadow: theme.isDark
+            ? '0 25px 60px rgba(0,0,0,0.7)'
+            : '0 20px 50px rgba(0,0,0,0.18)',
+        }}
+        className="w-full max-w-sm rounded-3xl p-5 border overflow-hidden flex flex-col max-h-[90vh] transition-colors"
+      >
+        {/* Header */}
+        <div
+          style={{ borderColor: theme.headerBorder }}
+          className="flex items-center justify-between pb-3.5 mb-3 border-b"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                backgroundColor: theme.subtleAccentBg,
+                color: theme.accentColor,
+                borderColor: theme.subtleAccentBorder,
+              }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center border"
+            >
+              <Settings className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold tracking-tight">Settings</h3>
+              <p style={{ color: theme.textSecondary }} className="text-[11px]">
+                Preferences, Feedback & Automation
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-medium tracking-tight">Settings</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Preferences & Feedback
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ color: theme.textSecondary }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              theme.isDark ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-black/10 hover:text-black'
+            }`}
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        <div className="space-y-4 mb-6">
+        {/* Settings Body */}
+        <div className="flex-1 overflow-y-auto space-y-2.5 pr-0.5 scrollbar-thin">
           {/* Keypress Sound Toggle Row */}
           <div
             onClick={() => {
               triggerHaptic('light');
               onToggleSound();
               if (!soundEnabled) {
-                // Play preview sound when turned on
                 setTimeout(() => playKeypressSound('number'), 50);
               }
             }}
-            className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40 cursor-pointer hover:bg-white/90 dark:hover:bg-black/30 transition-colors"
+            style={{
+              backgroundColor: theme.itemBg,
+              borderColor: theme.itemBorder,
+            }}
+            className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all group ${
+              theme.isDark ? 'hover:bg-white/[0.07]' : 'hover:bg-black/[0.07]'
+            }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300">
+              <div
+                style={{
+                  backgroundColor: soundEnabled ? theme.subtleAccentBg : theme.itemBg,
+                  color: soundEnabled ? theme.accentColor : theme.textSecondary,
+                }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
+              >
                 {soundEnabled ? (
-                  <Volume2 className="w-5 h-5 text-[#087A36] dark:text-emerald-400" />
+                  <Volume2 className="w-4 h-4" />
                 ) : (
-                  <VolumeX className="w-5 h-5 text-slate-400" />
+                  <VolumeX className="w-4 h-4" />
                 )}
               </div>
               <div>
-                <div className="text-sm font-medium">Keypress sound</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  Subtle click audio on touch
+                <div className="text-xs font-bold">Keypress Audio Sound</div>
+                <div style={{ color: theme.textSecondary }} className="text-[11px]">
+                  {soundEnabled ? 'Audio click on touch active' : 'Silent keypress'}
                 </div>
               </div>
             </div>
 
-            {/* Android Switch */}
+            {/* Switch */}
             <div
-              className={`w-12 h-7 flex items-center rounded-full p-1 duration-200 cursor-pointer transition-colors ${
-                soundEnabled
-                  ? 'bg-[#087A36] dark:bg-emerald-500'
-                  : 'bg-slate-300 dark:bg-slate-600'
-              }`}
+              style={{
+                backgroundColor: soundEnabled
+                  ? theme.accentBg
+                  : theme.isDark
+                  ? 'rgba(255,255,255,0.2)'
+                  : 'rgba(0,0,0,0.2)',
+              }}
+              className="w-11 h-6 flex items-center rounded-full p-0.5 transition-colors shrink-0"
             >
               <div
                 className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${
@@ -112,39 +175,48 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 triggerHaptic('medium');
                 onToggleSystemTimeTheme();
               }}
-              className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40 cursor-pointer hover:bg-white/90 dark:hover:bg-black/30 transition-colors"
+              style={{
+                backgroundColor: theme.itemBg,
+                borderColor: theme.itemBorder,
+              }}
+              className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all group ${
+                theme.isDark ? 'hover:bg-white/[0.07]' : 'hover:bg-black/[0.07]'
+              }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center">
                   {isDayTime ? (
-                    <Sun className="w-5 h-5" />
+                    <Sun className="w-4 h-4" />
                   ) : (
-                    <Moon className="w-5 h-5 text-indigo-400" />
+                    <Moon className="w-4 h-4 text-indigo-400" />
                   )}
                 </div>
                 <div>
-                  <div className="text-sm font-medium flex items-center gap-1.5">
-                    <span>System-Based Theme</span>
+                  <div className="text-xs font-bold flex items-center gap-1.5">
+                    <span>Auto Day / Night Theme</span>
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                  <div style={{ color: theme.textSecondary }} className="text-[11px]">
                     {systemTimeThemeEnabled ? (
-                      <span className="text-amber-600 dark:text-amber-400 font-medium">
-                        {isDayTime ? '☀️ Daytime (Light Theme Active)' : '🌙 Nighttime (Dark Theme Active)'}
+                      <span className="text-amber-500 font-semibold">
+                        {isDayTime ? '☀️ Daytime (Pixel Light)' : '🌙 Nighttime (Material Dark)'}
                       </span>
                     ) : (
-                      'Auto Light (Day) & Dark (Night)'
+                      'Adapts automatically to sunrise/sunset'
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Android Switch */}
+              {/* Switch */}
               <div
-                className={`w-12 h-7 flex items-center rounded-full p-1 duration-200 cursor-pointer transition-colors shrink-0 ${
-                  systemTimeThemeEnabled
-                    ? 'bg-[#087A36] dark:bg-emerald-500'
-                    : 'bg-slate-300 dark:bg-slate-600'
-                }`}
+                style={{
+                  backgroundColor: systemTimeThemeEnabled
+                    ? '#F59E0B'
+                    : theme.isDark
+                    ? 'rgba(255,255,255,0.2)'
+                    : 'rgba(0,0,0,0.2)',
+                }}
+                className="w-11 h-6 flex items-center rounded-full p-0.5 transition-colors shrink-0"
               >
                 <div
                   className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${
@@ -155,7 +227,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
             </div>
           )}
 
-          {/* App Icon Switcher */}
+          {/* App Launcher Icon Switcher */}
           {onOpenAppIcons && (
             <div
               onClick={() => {
@@ -163,7 +235,13 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 onClose();
                 onOpenAppIcons();
               }}
-              className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40 cursor-pointer hover:bg-white/90 dark:hover:bg-black/30 transition-colors"
+              style={{
+                backgroundColor: theme.itemBg,
+                borderColor: theme.itemBorder,
+              }}
+              className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all group ${
+                theme.isDark ? 'hover:bg-white/[0.07]' : 'hover:bg-black/[0.07]'
+              }`}
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl overflow-hidden shadow-xs border border-white/20 flex items-center justify-center shrink-0">
@@ -174,15 +252,13 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                   />
                 </div>
                 <div>
-                  <div className="text-sm font-medium">App Icon Style</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    ১০+ স্টাইলিশ অ্যাপ আইকন
+                  <div className="text-xs font-bold">App Launcher Icon</div>
+                  <div style={{ color: theme.textSecondary }} className="text-[11px]">
+                    ১০+ নান্দনিক আইকন কালেকশন
                   </div>
                 </div>
               </div>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
-                Change
-              </span>
+              <ChevronRight style={{ color: theme.textSecondary }} className="w-4 h-4 transition-colors" />
             </div>
           )}
 
@@ -194,54 +270,87 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 onClose();
                 onOpenOnboarding();
               }}
-              className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40 cursor-pointer hover:bg-white/90 dark:hover:bg-black/30 transition-colors"
+              style={{
+                backgroundColor: theme.itemBg,
+                borderColor: theme.itemBorder,
+              }}
+              className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all group ${
+                theme.isDark ? 'hover:bg-white/[0.07]' : 'hover:bg-black/[0.07]'
+              }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                  <Clock className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-500 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium">Welcome Theme Setup</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    প্রথমবারের থিম ও ওয়ালপেপার নির্বাচন স্ক্রিন
+                  <div className="text-xs font-bold">Welcome Setup Tour</div>
+                  <div style={{ color: theme.textSecondary }} className="text-[11px]">
+                    ওয়ালপেপার ও থিম স্বাগতম স্ক্রিন
                   </div>
                 </div>
               </div>
-              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1 rounded-full">
-                Open
+              <span className="text-[10px] font-semibold text-purple-600 dark:text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-md">
+                Launch
               </span>
             </div>
           )}
 
-          {/* Haptic Feedback Info */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40">
+          {/* Haptic Vibration Status */}
+          <div
+            style={{
+              backgroundColor: theme.itemBg,
+              borderColor: theme.itemBorder,
+            }}
+            className="flex items-center justify-between p-3.5 rounded-2xl border"
+          >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300">
-                <Smartphone className="w-5 h-5 text-[#004A77] dark:text-sky-400" />
+              <div
+                style={{
+                  backgroundColor: theme.subtleAccentBg,
+                  color: theme.accentColor,
+                }}
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+              >
+                <Smartphone className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-sm font-medium">Haptic vibration</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  Tactile feedback on Android
+                <div className="text-xs font-bold">Haptic Touch Vibration</div>
+                <div style={{ color: theme.textSecondary }} className="text-[11px]">
+                  Tactile feedback pulse
                 </div>
               </div>
             </div>
-            <span className="text-xs font-semibold text-[#087A36] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
+            <span
+              style={{
+                backgroundColor: theme.subtleAccentBg,
+                color: theme.accentColor,
+              }}
+              className="text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1"
+            >
+              <CheckCircle2 className="w-3 h-3" />
               Active
             </span>
           </div>
         </div>
 
-        <div className="flex justify-end">
+        {/* Done Button */}
+        <div
+          style={{ borderColor: theme.headerBorder }}
+          className="pt-3.5 mt-2 border-t flex justify-end"
+        >
           <button
             type="button"
             onClick={() => {
               triggerHaptic('light');
               onClose();
             }}
-            className="px-6 py-2 text-sm font-semibold text-white bg-[#087A36] hover:bg-[#076c30] rounded-full transition-colors shadow-sm"
+            style={{
+              backgroundColor: theme.accentBg,
+              color: theme.accentText,
+            }}
+            className="w-full py-2.5 text-xs font-bold rounded-xl transition-all shadow-lg active:scale-98 cursor-pointer"
           >
-            Done
+            Save & Done
           </button>
         </div>
       </div>

@@ -1,112 +1,274 @@
 /**
- * Help Screen Dialog
+ * Help Screen Dialog (Theme-Adaptive)
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
- * Explains basic & scientific calculator functions, angle modes, inverse operations, etc.
+ * Comprehensive Guide:
+ * - Arithmetic and scientific function references
+ * - DEG vs RAD angles
+ * - Inverse trigonometric mode (INV)
+ * - Complete keyboard shortcuts table
+ * - Dynamically adapts to the currently active Theme Palette
  */
 
-import React from 'react';
-import { HelpCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  HelpCircle,
+  X,
+  Keyboard,
+  Calculator as CalcIcon,
+} from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
+import { ThemePalette } from '../data/themes.ts';
+import { getModalThemeStyles } from '../utils/themeStyles.ts';
 
 interface HelpDialogProps {
   isOpen: boolean;
+  palette?: ThemePalette;
   onClose: () => void;
 }
 
-export const HelpDialog: React.FC<HelpDialogProps> = ({ isOpen, onClose }) => {
+export const HelpDialog: React.FC<HelpDialogProps> = ({
+  isOpen,
+  palette,
+  onClose,
+}) => {
+  const [activeTab, setActiveTab] = useState<'functions' | 'shortcuts'>('functions');
+  const theme = getModalThemeStyles(palette);
+
   if (!isOpen) return null;
 
+  const shortcuts = [
+    { key: '0 - 9', desc: 'Input numbers' },
+    { key: '+  −  ×  ÷', desc: 'Arithmetic operations' },
+    { key: 'Enter or =', desc: 'Evaluate expression' },
+    { key: 'Backspace', desc: 'Delete last character' },
+    { key: 'Escape or c', desc: 'Clear all (AC)' },
+    { key: '(  )', desc: 'Grouping parentheses' },
+    { key: '^', desc: 'Power / Exponentiation' },
+    { key: '%', desc: 'Percentage calculation' },
+  ];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-md bg-[#EEF2F6] dark:bg-[#25282D] rounded-3xl p-6 shadow-2xl border border-slate-200/50 dark:border-slate-700/50 text-slate-800 dark:text-slate-100 max-h-[85vh] flex flex-col">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-sky-100 dark:bg-sky-950/60 flex items-center justify-center text-[#004A77] dark:text-sky-400">
-            <HelpCircle className="w-6 h-6" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-150 select-none">
+      <div
+        style={{
+          backgroundColor: theme.dialogBg,
+          borderColor: theme.dialogBorder,
+          color: theme.textPrimary,
+          boxShadow: theme.isDark
+            ? '0 25px 60px rgba(0,0,0,0.7)'
+            : '0 20px 50px rgba(0,0,0,0.18)',
+        }}
+        className="w-full max-w-md rounded-3xl border overflow-hidden flex flex-col max-h-[90vh] transition-colors"
+      >
+        {/* Header */}
+        <div
+          style={{
+            borderColor: theme.headerBorder,
+            backgroundColor: theme.headerBg,
+          }}
+          className="px-5 py-4 border-b flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                backgroundColor: theme.subtleAccentBg,
+                color: theme.accentColor,
+                borderColor: theme.subtleAccentBorder,
+              }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center border"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold tracking-tight">
+                Calculator Guide & Reference
+              </h3>
+              <p style={{ color: theme.textSecondary }} className="text-[11px]">
+                Scientific operations & keyboard shortcuts
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-medium tracking-tight">Calculator Help</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Guide & Function Reference
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ color: theme.textSecondary }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              theme.isDark ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-black/10 hover:text-black'
+            }`}
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-1 space-y-3.5 text-sm text-slate-600 dark:text-slate-300">
-          <section>
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-              Basic Calculations
-            </h4>
-            <p className="text-xs leading-relaxed">
-              Standard arithmetic operations (+, −, ×, ÷) follow standard mathematical order of operations (precedence). Use ( ) for grouping expressions.
-            </p>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-              Scientific Mode (Optional)
-            </h4>
-            <p className="text-xs leading-relaxed">
-              Tap the small chevron icon above the keypad to expand or collapse the scientific keyboard.
-            </p>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-              Angle Modes (DEG / RAD)
-            </h4>
-            <p className="text-xs leading-relaxed">
-              Tap the <strong>rad</strong> or <strong>deg</strong> key in scientific mode to switch between Radian and Degree mode (e.g., in DEG mode: sin(30) = 0.5).
-            </p>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-              Inverse Functions (INV)
-            </h4>
-            <p className="text-xs leading-relaxed">
-              Tap <strong>INV</strong> to reveal inverse trigonometric functions (sin⁻¹, cos⁻¹, tan⁻¹).
-            </p>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-              Power, Factorial, Root & Logs
-            </h4>
-            <p className="text-xs leading-relaxed">
-              Use <strong>^</strong> for exponentiation (e.g., 2^3 = 8), <strong>!</strong> for factorial (5! = 120), <strong>√</strong> for square root, <strong>ln</strong> for natural log, and <strong>log</strong> for base-10 log.
-            </p>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-              AC & Backspace
-            </h4>
-            <p className="text-xs leading-relaxed">
-              <strong>AC</strong> clears the entire current expression and result. The backspace key <strong>⌫</strong> deletes the last entered character or function token.
-            </p>
-          </section>
-
-          <section>
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-              History
-            </h4>
-            <p className="text-xs leading-relaxed">
-              Tap the top-left clock icon to view previous calculations. Tap any history item to restore its expression and result directly into the active display.
-            </p>
-          </section>
-        </div>
-
-        <div className="mt-5 flex justify-end">
+        {/* Tab Switcher */}
+        <div
+          style={{
+            borderColor: theme.headerBorder,
+            backgroundColor: theme.headerBg,
+          }}
+          className="px-5 pt-3 pb-2 flex gap-2 border-b"
+        >
           <button
             type="button"
             onClick={() => {
               triggerHaptic('light');
-              onClose();
+              setActiveTab('functions');
             }}
-            className="px-6 py-2 text-sm font-semibold text-white bg-[#087A36] hover:bg-[#076c30] rounded-full transition-colors shadow-sm"
+            style={{
+              backgroundColor: activeTab === 'functions' ? theme.accentBg : 'transparent',
+              color: activeTab === 'functions' ? theme.accentText : theme.textSecondary,
+            }}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm hover:brightness-105"
+          >
+            <CalcIcon className="w-3.5 h-3.5" />
+            <span>Math Functions</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('light');
+              setActiveTab('shortcuts');
+            }}
+            style={{
+              backgroundColor: activeTab === 'shortcuts' ? theme.accentBg : 'transparent',
+              color: activeTab === 'shortcuts' ? theme.accentText : theme.textSecondary,
+            }}
+            className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm hover:brightness-105"
+          >
+            <Keyboard className="w-3.5 h-3.5" />
+            <span>Keyboard Shortcuts</span>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 text-xs scrollbar-thin">
+          {activeTab === 'functions' ? (
+            <>
+              <div
+                style={{
+                  backgroundColor: theme.itemBg,
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-3.5 rounded-2xl border space-y-1"
+              >
+                <div className="font-bold flex items-center gap-1.5">
+                  <span
+                    style={{ backgroundColor: theme.accentColor }}
+                    className="w-2 h-2 rounded-full"
+                  />
+                  Basic Order of Operations
+                </div>
+                <p style={{ color: theme.textSecondary }} className="text-[11px] leading-relaxed">
+                  Evaluates according to strict PEMDAS precedence: Parentheses, Exponents, Multiplication & Division, Addition & Subtraction. Consecutive operators are cleanly handled.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: theme.itemBg,
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-3.5 rounded-2xl border space-y-1"
+              >
+                <div className="font-bold flex items-center gap-1.5">
+                  <span
+                    style={{ backgroundColor: theme.accentColor }}
+                    className="w-2 h-2 rounded-full"
+                  />
+                  Angle Modes (DEG vs RAD)
+                </div>
+                <p style={{ color: theme.textSecondary }} className="text-[11px] leading-relaxed">
+                  Toggle between <strong>deg</strong> and <strong>rad</strong> in the scientific row. Exact trigonometric identities like sin(30°) = 0.5, cos(60°) = 0.5, and tan(45°) = 1 are precision-guaranteed.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: theme.itemBg,
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-3.5 rounded-2xl border space-y-1"
+              >
+                <div className="font-bold flex items-center gap-1.5">
+                  <span
+                    style={{ backgroundColor: theme.accentColor }}
+                    className="w-2 h-2 rounded-full"
+                  />
+                  Inverse Trig Functions (INV)
+                </div>
+                <p style={{ color: theme.textSecondary }} className="text-[11px] leading-relaxed">
+                  Press <strong>INV</strong> on the scientific panel to reveal arcsine (sin⁻¹), arccosine (cos⁻¹), arctangent (tan⁻¹), e^x, and 10^x.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: theme.itemBg,
+                  borderColor: theme.itemBorder,
+                }}
+                className="p-3.5 rounded-2xl border space-y-1"
+              >
+                <div className="font-bold flex items-center gap-1.5">
+                  <span
+                    style={{ backgroundColor: theme.accentColor }}
+                    className="w-2 h-2 rounded-full"
+                  />
+                  Factorial, Exponent & Roots
+                </div>
+                <p style={{ color: theme.textSecondary }} className="text-[11px] leading-relaxed">
+                  Supports up to 170! factorial (e.g. 5! = 120), natural logarithm (ln), base-10 log, square root (√), and arbitrary power exponentiation (x^y).
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-1.5">
+              {shortcuts.map((s) => (
+                <div
+                  key={s.key}
+                  style={{
+                    backgroundColor: theme.itemBg,
+                    borderColor: theme.itemBorder,
+                  }}
+                  className="flex items-center justify-between p-2.5 rounded-xl border"
+                >
+                  <span
+                    style={{
+                      backgroundColor: theme.subtleAccentBg,
+                      color: theme.accentColor,
+                    }}
+                    className="font-mono text-xs font-bold px-2 py-0.5 rounded"
+                  >
+                    {s.key}
+                  </span>
+                  <span style={{ color: theme.textSecondary }} className="text-[11px]">
+                    {s.desc}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            borderColor: theme.footerBorder,
+            backgroundColor: theme.footerBg,
+          }}
+          className="px-5 py-3.5 border-t flex items-center justify-end"
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              backgroundColor: theme.accentBg,
+              color: theme.accentText,
+            }}
+            className="px-6 py-2 rounded-xl font-bold text-xs transition-all shadow-sm active:scale-95 cursor-pointer hover:brightness-110"
           >
             Got it
           </button>

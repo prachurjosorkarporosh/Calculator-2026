@@ -288,7 +288,17 @@ export default function App() {
 
       // Decimal point validation
       if (token === '.') {
-        if (!CalculatorEngine.canAppendDot(isEvaluated ? '' : expression)) {
+        if (isEvaluated) {
+          setIsEvaluated(false);
+          setExpression('0.');
+          setResult('');
+          return;
+        }
+        if (!expression || /[+−×÷^(]$/.test(expression)) {
+          setExpression((prev) => prev + '0.');
+          return;
+        }
+        if (!CalculatorEngine.canAppendDot(expression)) {
           return;
         }
       }
@@ -305,6 +315,41 @@ export default function App() {
         setExpression(token);
         setResult('');
         return;
+      }
+
+      // Operator replacement if user enters consecutive operators (+, −, ×, ÷)
+      if (['+', '−', '×', '÷'].includes(token)) {
+        if (!expression) {
+          if (token === '−') {
+            setExpression('−');
+            return;
+          }
+          if (result && !result.toLowerCase().includes('error')) {
+            setExpression(`${result}${token}`);
+            return;
+          }
+          return;
+        }
+
+        const lastChar = expression[expression.length - 1];
+        const prevChar = expression.length > 1 ? expression[expression.length - 2] : '';
+
+        // If ends with an operator like '5 +' and user taps '×', replace '+' with '×'
+        if (['+', '−', '×', '÷'].includes(lastChar)) {
+          // Allow negative sign after × or ÷ or ^ for negative numbers (e.g. 5 × −)
+          if (token === '−' && ['×', '÷', '^'].includes(lastChar)) {
+            setExpression((prev) => prev + token);
+            return;
+          }
+          // If already has double operator e.g. '×−' and user taps '+', replace both with '+'
+          if (['×', '÷'].includes(prevChar) && lastChar === '−') {
+            setExpression((prev) => prev.slice(0, -2) + token);
+            return;
+          }
+          // Otherwise replace the trailing operator
+          setExpression((prev) => prev.slice(0, -1) + token);
+          return;
+        }
       }
 
       setExpression((prev) => prev + token);
@@ -342,6 +387,7 @@ export default function App() {
   const handleBackspace = useCallback(() => {
     if (isEvaluated) {
       setIsEvaluated(false);
+      setResult('');
       return;
     }
 
@@ -350,12 +396,12 @@ export default function App() {
       if (!prev) return '';
 
       const functionTokens = [
-        'sin(',
-        'cos(',
-        'tan(',
         'asin(',
         'acos(',
         'atan(',
+        'sin(',
+        'cos(',
+        'tan(',
         'ln(',
         'log(',
         '√(',
@@ -699,6 +745,15 @@ export default function App() {
   // Physical Keyboard listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept when user is typing in form inputs, textareas, etc.
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement)?.isContentEditable
+      ) {
+        return;
+      }
+
       if (
         isThemesOpen ||
         isFontsOpen ||
@@ -707,7 +762,11 @@ export default function App() {
         isPrivacyDialogOpen ||
         isHelpDialogOpen ||
         isAboutDialogOpen ||
-        isHistoryOpen
+        isHistoryOpen ||
+        isVoiceOpen ||
+        isDatabaseOpen ||
+        isOnboardingOpen ||
+        isAppIconOpen
       ) {
         if (e.key === 'Escape') {
           setIsThemesOpen(false);
@@ -718,6 +777,10 @@ export default function App() {
           setIsHelpDialogOpen(false);
           setIsAboutDialogOpen(false);
           setIsHistoryOpen(false);
+          setIsVoiceOpen(false);
+          setIsDatabaseOpen(false);
+          setIsOnboardingOpen(false);
+          setIsAppIconOpen(false);
         }
         return;
       }
@@ -781,6 +844,10 @@ export default function App() {
     isHelpDialogOpen,
     isAboutDialogOpen,
     isHistoryOpen,
+    isVoiceOpen,
+    isDatabaseOpen,
+    isOnboardingOpen,
+    isAppIconOpen,
   ]);
 
   // Dedicated Theme Studio Page View
@@ -917,6 +984,7 @@ export default function App() {
         {/* Overflow 3-Dot Popup Menu */}
         <ThreeDotMenu
           isOpen={isMenuOpen}
+          palette={activePalette}
           soundEnabled={soundEnabled}
           onToggleSound={handleToggleSound}
           onClose={() => setIsMenuOpen(false)}
@@ -954,6 +1022,7 @@ export default function App() {
         {/* 50+ Google Fonts Gallery Modal */}
         <FontSelectorModal
           isOpen={isFontsOpen}
+          palette={activePalette}
           activeFontId={fontId}
           onSelectFont={handleSelectFontId}
           onClose={() => setIsFontsOpen(false)}
@@ -962,6 +1031,7 @@ export default function App() {
         {/* App Icon Selector Modal */}
         <AppIconModal
           isOpen={isAppIconOpen}
+          palette={activePalette}
           activeIconId={appIconId}
           onSelectIcon={handleSelectAppIcon}
           onClose={() => setIsAppIconOpen(false)}
@@ -970,6 +1040,7 @@ export default function App() {
         {/* Personalize & Sizing Controls Modal */}
         <CustomizationModal
           isOpen={isCustomizationOpen}
+          palette={activePalette}
           buttonShape={buttonShape}
           keypadScale={keypadScale}
           displaySize={displaySize}
@@ -1009,6 +1080,7 @@ export default function App() {
         {/* Fullscreen History Sheet */}
         <HistoryModal
           isOpen={isHistoryOpen}
+          palette={activePalette}
           history={history}
           onClose={() => setIsHistoryOpen(false)}
           onSelectHistory={handleSelectHistoryItem}
@@ -1019,6 +1091,7 @@ export default function App() {
         {/* Settings Dialog */}
         <SettingsDialog
           isOpen={isSettingsDialogOpen}
+          palette={activePalette}
           soundEnabled={soundEnabled}
           onToggleSound={handleToggleSound}
           systemTimeThemeEnabled={systemTimeThemeEnabled}
@@ -1048,24 +1121,28 @@ export default function App() {
         {/* Privacy Policy Dialog */}
         <PrivacyDialog
           isOpen={isPrivacyDialogOpen}
+          palette={activePalette}
           onClose={() => setIsPrivacyDialogOpen(false)}
         />
 
         {/* Help Dialog */}
         <HelpDialog
           isOpen={isHelpDialogOpen}
+          palette={activePalette}
           onClose={() => setIsHelpDialogOpen(false)}
         />
 
         {/* About Dialog */}
         <AboutDialog
           isOpen={isAboutDialogOpen}
+          palette={activePalette}
           onClose={() => setIsAboutDialogOpen(false)}
         />
 
         {/* Voice Calculator Modal (মুখে বলে হিসাব) */}
         <VoiceCalculatorModal
           isOpen={isVoiceOpen}
+          palette={activePalette}
           angleMode={angleMode}
           onApplyCalculation={handleApplyVoiceCalculation}
           onClose={() => setIsVoiceOpen(false)}
@@ -1074,6 +1151,7 @@ export default function App() {
         {/* Phone Database Manager & Backup Modal (সব ফোনের ডাটাবেজ) */}
         <PhoneDatabaseModal
           isOpen={isDatabaseOpen}
+          palette={activePalette}
           history={history}
           customColors={customColors}
           preferences={{

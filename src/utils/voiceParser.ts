@@ -176,12 +176,15 @@ export function parseSpokenMath(rawTranscript: string): VoiceParseResult {
     .replace(/sine of|sine|sin/gi, 'sin(')
     .replace(/cosine of|cosine|cos/gi, 'cos(')
     .replace(/tangent of|tangent|tan/gi, 'tan(')
+    .replace(/natural log of|natural log|ln of|ln/gi, 'ln(')
+    .replace(/log of|logarithm of|logarithm|log/gi, 'log(')
     .replace(/pi/gi, 'π');
 
-  // Remove common question phrases in Bengali & English
+  // Remove common question phrases & filler prepositions in Bengali & English
   text = text
     .replace(/সমান কত|হিসাব করো|সমান|কত হয়|কত হবে/gi, '')
-    .replace(/equals|equal to|equal|what is|how much is|calculate|result/gi, '');
+    .replace(/equals|equal to|equal|what is|how much is|calculate|result/gi, '')
+    .replace(/\b(of|the|is|in|please)\b/gi, '');
 
   // Keep only valid calculator characters
   // 0-9, +, −, -, ×, *, ÷, /, ., %, (, ), ^, √, π, e, s, i, n, c, o, t, a
@@ -192,10 +195,9 @@ export function parseSpokenMath(rawTranscript: string): VoiceParseResult {
     .replace(/\s+/g, '');
 
   // Filter out stray non-calculator characters
-  const validChars = /^[0-9+\-−×÷.%()^√πesincota]+$/;
   let parsed = '';
   for (const ch of text) {
-    if (/[0-9+−×÷.%()^√πesinco]/.test(ch)) {
+    if (/[0-9+−×÷.%()^√π!esincotalgqr]/.test(ch)) {
       parsed += ch;
     }
   }

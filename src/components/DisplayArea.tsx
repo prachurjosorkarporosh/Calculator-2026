@@ -95,7 +95,7 @@ export const DisplayArea: React.FC<DisplayAreaProps> = ({
 
   // Format numbers with commas if enabled
   const formatDisplay = (val: string) => {
-    if (!formatThousands || !val || isNaN(Number(val))) return val;
+    if (!formatThousands || !val || isNaN(Number(val)) || val.includes('e') || val.includes('E')) return val;
     const parts = val.split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return parts.join('.');

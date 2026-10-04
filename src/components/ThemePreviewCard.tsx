@@ -159,23 +159,22 @@ export const ThemePreviewCard: React.FC<ThemePreviewCardProps> = ({
         </div>
       </div>
 
-      {/* Bottom Gradient Scrim Overlay - Exact same as Wallpapers */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent flex flex-col justify-end p-2.5">
-        <span className="text-xs font-bold text-white truncate drop-shadow-sm">
-          {theme.name}
-        </span>
-        <span className="text-[10px] text-slate-300 truncate drop-shadow-sm">
-          {theme.nameBn || theme.category}
-        </span>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-[9px] text-purple-300 font-medium px-1.5 py-0.5 rounded bg-purple-950/60 border border-purple-500/20">
-            {theme.category}
+      {/* Bottom Gradient Scrim Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent flex flex-col justify-end p-3">
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-xs font-semibold text-white truncate tracking-tight">
+            {theme.name}
           </span>
           {isSelected && (
-            <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-md">
-              <Check className="w-3 h-3 stroke-[3]" />
+            <span className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <Check className="w-2.5 h-2.5 stroke-[3]" />
             </span>
           )}
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5 truncate">
+          <span className="truncate">{theme.nameBn || theme.name}</span>
+          <span aria-hidden="true" className="text-slate-600">·</span>
+          <span className="text-slate-400">{theme.category}</span>
         </div>
       </div>
     </div>

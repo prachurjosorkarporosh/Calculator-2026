@@ -1,9 +1,10 @@
 /**
- * Voice Calculator Modal (ভয়েস ক্যালকুলেটর)
- * Allows calculating by voice in Bengali (বাংলা) and English
+ * Voice Calculator Modal (Theme-Adaptive)
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
+ *
+ * Dynamically adapts to the currently active Theme Palette (Light, Dark, OLED, Cyber, Pastel, Custom).
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -14,7 +15,6 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
-  HelpCircle,
   ArrowRight,
   RefreshCw,
   Check,
@@ -23,8 +23,9 @@ import { parseSpokenMath, speakResult, VoiceParseResult } from '../utils/voicePa
 import { triggerHaptic } from '../utils/haptics.ts';
 import { CalculatorEngine } from '../domain/calculatorEngine.ts';
 import { AngleMode } from '../types.ts';
+import { ThemePalette } from '../data/themes.ts';
+import { getModalThemeStyles } from '../utils/themeStyles.ts';
 
-// TypeScript declaration for webkitSpeechRecognition
 interface IWindow extends Window {
   webkitSpeechRecognition?: any;
   SpeechRecognition?: any;
@@ -32,6 +33,7 @@ interface IWindow extends Window {
 
 interface VoiceCalculatorModalProps {
   isOpen: boolean;
+  palette?: ThemePalette;
   angleMode: AngleMode;
   onApplyCalculation: (expression: string, evaluateImmediately: boolean) => void;
   onClose: () => void;
@@ -39,6 +41,7 @@ interface VoiceCalculatorModalProps {
 
 export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
   isOpen,
+  palette,
   angleMode,
   onApplyCalculation,
   onClose,
@@ -53,6 +56,7 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
   const [statusMessage, setStatusMessage] = useState('মাইক্রোফোনে ট্যাপ করে মুখে বলুন');
 
   const recognitionRef = useRef<any>(null);
+  const theme = getModalThemeStyles(palette);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -84,7 +88,7 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
         setStatusMessage(
           selectedLang === 'bn-BD'
             ? 'শুনছি... মুখে বলুন (যেমন: পাঁচ যোগ সাত)'
-            : 'Listening... Speak now (e.g. 5 plus 7)'
+            : 'Listening... Speak equation (e.g. 25 times 4)'
         );
       };
 
@@ -226,54 +230,92 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 animate-in fade-in duration-150 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-[#EEF2F6] dark:bg-[#1E2126] text-slate-800 dark:text-slate-100 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700/60 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-150 select-none">
+      <div
+        style={{
+          backgroundColor: theme.dialogBg,
+          borderColor: theme.dialogBorder,
+          color: theme.textPrimary,
+          boxShadow: theme.isDark
+            ? '0 25px 60px rgba(0,0,0,0.7)'
+            : '0 20px 50px rgba(0,0,0,0.18)',
+        }}
+        className="w-full max-w-md rounded-3xl border overflow-hidden flex flex-col max-h-[92vh] transition-colors"
+      >
         {/* Header */}
-        <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-700/60 flex items-center justify-between bg-white/50 dark:bg-black/20">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+        <div
+          style={{
+            borderColor: theme.headerBorder,
+            backgroundColor: theme.headerBg,
+          }}
+          className="px-5 py-4 border-b flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                backgroundColor: theme.subtleAccentBg,
+                color: theme.accentColor,
+                borderColor: theme.subtleAccentBorder,
+              }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center border"
+            >
               <Mic className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-1.5">
-                <span>ভয়েস ক্যালকুলেটর</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold uppercase">
-                  Voice
+              <h3 className="text-base sm:text-lg font-bold tracking-tight flex items-center gap-2">
+                <span>Voice Calculator</span>
+                <span
+                  style={{
+                    backgroundColor: theme.subtleAccentBg,
+                    color: theme.accentColor,
+                  }}
+                  className="text-[10px] px-2 py-0.5 rounded-full font-bold font-mono"
+                >
+                  Bilingual
                 </span>
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                মুখে বলুন এবং সরাসরি হিসাব করুন
+              <p style={{ color: theme.textSecondary }} className="text-[11px]">
+                বাংলা ও ইংরেজিতে মুখে বলে সরাসরি হিসাব করুন
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            style={{ color: theme.textSecondary }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              theme.isDark ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-black/10 hover:text-black'
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
+        {/* Content Body */}
         <div className="p-5 flex-1 overflow-y-auto space-y-4">
-          {/* Language Switcher & Audio Voice Feedback Toggle */}
-          <div className="flex items-center justify-between text-xs">
+          {/* Controls Bar: Language + Voice Speech Toggle */}
+          <div className="flex items-center justify-between gap-2">
             {/* Language Selector */}
-            <div className="flex items-center bg-black/5 dark:bg-white/5 p-1 rounded-xl">
+            <div
+              style={{
+                backgroundColor: theme.itemBg,
+                borderColor: theme.itemBorder,
+              }}
+              className="flex items-center p-1 rounded-xl border"
+            >
               <button
                 type="button"
                 onClick={() => {
                   triggerHaptic('light');
                   setSelectedLang('bn-BD');
                 }}
-                className={`px-3 py-1 rounded-lg font-semibold transition-all ${
-                  selectedLang === 'bn-BD'
-                    ? 'bg-[#087A36] text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
+                style={{
+                  backgroundColor: selectedLang === 'bn-BD' ? theme.accentBg : 'transparent',
+                  color: selectedLang === 'bn-BD' ? theme.accentText : theme.textSecondary,
+                }}
+                className="px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
               >
-                বাংলা (Bengali)
+                বাংলা
               </button>
               <button
                 type="button"
@@ -281,87 +323,105 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
                   triggerHaptic('light');
                   setSelectedLang('en-US');
                 }}
-                className={`px-3 py-1 rounded-lg font-semibold transition-all ${
-                  selectedLang === 'en-US'
-                    ? 'bg-[#087A36] text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400'
-                }`}
+                style={{
+                  backgroundColor: selectedLang === 'en-US' ? theme.accentBg : 'transparent',
+                  color: selectedLang === 'en-US' ? theme.accentText : theme.textSecondary,
+                }}
+                className="px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
               >
                 English
               </button>
             </div>
 
-            {/* Voice Output (Speech) Toggle */}
+            {/* Speech Announcer Toggle */}
             <button
               type="button"
               onClick={() => {
                 triggerHaptic('light');
                 setSpeakAnswer(!speakAnswer);
               }}
-              title="উত্তর মুখে বলবে কিনা"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${
-                speakAnswer
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-                  : 'bg-black/5 dark:bg-white/5 border-transparent text-slate-500'
-              }`}
+              style={{
+                backgroundColor: speakAnswer ? theme.subtleAccentBg : theme.itemBg,
+                borderColor: speakAnswer ? theme.subtleAccentBorder : theme.itemBorder,
+                color: speakAnswer ? theme.accentColor : theme.textSecondary,
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer"
             >
               {speakAnswer ? (
                 <>
                   <Volume2 className="w-3.5 h-3.5" />
-                  <span>ভয়েস অন</span>
+                  <span>Speech On</span>
                 </>
               ) : (
                 <>
                   <VolumeX className="w-3.5 h-3.5" />
-                  <span>মিউট</span>
+                  <span>Mute Speech</span>
                 </>
               )}
             </button>
           </div>
 
-          {/* Interactive Microphone Pulsating Circle */}
-          <div className="flex flex-col items-center justify-center py-4">
-            <div className="relative flex items-center justify-center">
-              {/* Ripple Animation Rings */}
+          {/* Microphone Visualizer */}
+          <div
+            style={{
+              backgroundColor: theme.itemBg,
+              borderColor: theme.itemBorder,
+            }}
+            className="flex flex-col items-center justify-center py-4 rounded-2xl border relative overflow-hidden"
+          >
+            <div className="relative flex items-center justify-center my-2">
+              {/* Outer Glow Wave Rings */}
               {isListening && (
                 <>
-                  <span className="absolute w-28 h-28 rounded-full bg-emerald-500/20 animate-ping duration-1000 pointer-events-none" />
-                  <span className="absolute w-24 h-24 rounded-full bg-emerald-500/30 animate-pulse pointer-events-none" />
+                  <span
+                    style={{ backgroundColor: theme.accentColor, opacity: 0.15 }}
+                    className="absolute w-28 h-28 rounded-full animate-ping duration-1000 pointer-events-none"
+                  />
+                  <span
+                    style={{ backgroundColor: theme.accentColor, opacity: 0.25 }}
+                    className="absolute w-24 h-24 rounded-full animate-pulse duration-700 pointer-events-none"
+                  />
                 </>
               )}
 
               <button
                 type="button"
                 onClick={toggleListening}
-                className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-white shadow-xl transition-all active:scale-95 ${
-                  isListening
-                    ? 'bg-emerald-600 hover:bg-emerald-700 ring-4 ring-emerald-400/40 scale-105'
-                    : 'bg-slate-700 hover:bg-slate-600 dark:bg-slate-800'
-                }`}
+                style={{
+                  backgroundColor: isListening
+                    ? theme.accentBg
+                    : (theme.isDark ? '#1E293B' : '#E2E8F0'),
+                  color: isListening ? theme.accentText : theme.textPrimary,
+                }}
+                className="relative z-10 w-20 h-20 rounded-full flex items-center justify-center shadow-xl transition-all active:scale-95 cursor-pointer"
               >
                 {isListening ? (
                   <Mic className="w-9 h-9 animate-bounce duration-300" />
                 ) : (
-                  <MicOff className="w-8 h-8 opacity-75" />
+                  <MicOff className="w-8 h-8 opacity-70" />
                 )}
               </button>
             </div>
 
             {/* Status Message */}
-            <div className="mt-3 text-center">
-              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-                {statusMessage}
-              </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                {isListening ? 'কথা বলা শেষ হলে হিসাব তৈরি হবে' : 'ট্যাপ করে কথা বলা শুরু করুন'}
+            <div className="mt-3 text-center px-4">
+              <p className="text-xs font-bold">{statusMessage}</p>
+              <p style={{ color: theme.textSecondary }} className="text-[11px] mt-0.5">
+                {isListening ? 'কথা শেষ হলে স্বয়ংক্রিয় গণনা হবে' : 'মাইক্রোফোনে ট্যাপ করে কথা বলুন'}
               </p>
             </div>
           </div>
 
-          {/* Real-time Voice Recognition Card */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-black/30 border border-slate-200 dark:border-slate-700/60 shadow-sm space-y-2">
-            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>কথার বিবরণ (Spoken Transcript):</span>
+          {/* Transcript & Result Card */}
+          <div
+            style={{
+              backgroundColor: theme.itemBg,
+              borderColor: theme.itemBorder,
+            }}
+            className="p-4 rounded-2xl border space-y-2"
+          >
+            <div className="flex items-center justify-between text-[11px]">
+              <span style={{ color: theme.textSecondary }}>কথার বিবরণ (Transcript):</span>
               {transcript && (
                 <button
                   type="button"
@@ -370,7 +430,7 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
                     setParsedExpression('');
                     setCalculatedResult(null);
                   }}
-                  className="text-rose-500 hover:underline flex items-center gap-1"
+                  className="text-rose-500 hover:underline flex items-center gap-1 cursor-pointer font-bold"
                 >
                   <RefreshCw className="w-3 h-3" />
                   <span>মুছুন</span>
@@ -378,28 +438,31 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
               )}
             </div>
 
-            <div className="min-h-7 text-sm font-medium text-slate-800 dark:text-slate-200 italic">
-              {transcript ? `"${transcript}"` : '(এখনো কিছু বলা হয়নি)'}
+            <div className="min-h-7 text-sm font-medium italic">
+              {transcript ? `"${transcript}"` : '(এখনো কিছু বলা হয়নি)'}
             </div>
 
-            {/* Parsed Mathematical Expression & Result */}
+            {/* Expression & Result */}
             {parsedExpression && (
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-700/40 flex items-center justify-between">
+              <div
+                style={{ borderColor: theme.headerBorder }}
+                className="pt-2 border-t flex items-center justify-between"
+              >
                 <div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                    গাণিতিক রূপ
+                  <div style={{ color: theme.textMuted }} className="text-[10px] uppercase font-bold">
+                    Expression
                   </div>
-                  <div className="font-mono text-base font-bold text-slate-900 dark:text-white">
+                  <div className="font-mono text-base font-bold">
                     {parsedExpression}
                   </div>
                 </div>
 
                 {calculatedResult && (
                   <div className="text-right">
-                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-bold">
-                      ফলাফল
+                    <div style={{ color: theme.accentColor }} className="text-[10px] uppercase font-bold">
+                      Result
                     </div>
-                    <div className="font-mono text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    <div style={{ color: theme.accentColor }} className="font-mono text-2xl font-bold">
                       = {calculatedResult}
                     </div>
                   </div>
@@ -408,11 +471,11 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
             )}
           </div>
 
-          {/* Quick Click Test Queries */}
+          {/* Quick Voice Sample Chips */}
           <div className="space-y-2">
-            <div className="flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <div className="flex items-center gap-1.5 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>সহজে পরীক্ষা করুন (নমুনা বাক্য):</span>
+              <span>নমুনা বাক্য (Quick Test Samples):</span>
             </div>
 
             <div className="flex flex-wrap gap-1.5">
@@ -422,10 +485,15 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
                     key={sample.voice}
                     type="button"
                     onClick={() => handleQuickSample(sample.voice)}
-                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-black/20 hover:bg-black/5 dark:hover:bg-white/10 border border-slate-200/80 dark:border-slate-700/40 text-xs font-medium text-slate-700 dark:text-slate-300 transition-all active:scale-95 text-left"
+                    style={{
+                      backgroundColor: theme.itemBg,
+                      borderColor: theme.itemBorder,
+                      color: theme.textPrimary,
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl border text-xs font-medium transition-all active:scale-95 text-left cursor-pointer hover:opacity-80"
                   >
                     <span>{sample.voice}</span>
-                    <span className="text-[10px] text-slate-400 ml-1.5">
+                    <span style={{ color: theme.textMuted }} className="text-[10px] ml-1.5 font-mono">
                       ({sample.exp})
                     </span>
                   </button>
@@ -435,23 +503,36 @@ export const VoiceCalculatorModal: React.FC<VoiceCalculatorModalProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-700/60 bg-white/50 dark:bg-black/20 flex items-center justify-between text-xs">
+        {/* Footer Actions */}
+        <div
+          style={{
+            borderColor: theme.footerBorder,
+            backgroundColor: theme.footerBg,
+          }}
+          className="px-5 py-3.5 border-t flex items-center justify-between text-xs"
+        >
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/10 font-semibold transition-colors"
+            style={{ color: theme.textSecondary }}
+            className={`px-4 py-2 rounded-xl font-bold transition-colors cursor-pointer ${
+              theme.isDark ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-black/10 hover:text-black'
+            }`}
           >
-            বাতিল (Cancel)
+            Cancel
           </button>
 
           <button
             type="button"
             disabled={!parsedExpression}
             onClick={handleApplyToCalculator}
-            className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#087A36] hover:bg-[#076c30] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-all shadow-sm active:scale-95"
+            style={{
+              backgroundColor: theme.accentBg,
+              color: theme.accentText,
+            }}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <span>ক্যালকুলেটরে হিসাব করুন</span>
+            <span>Apply to Calculator</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
