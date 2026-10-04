@@ -911,6 +911,7 @@ export default function App() {
             onOpenCustomization={() => setIsCustomizationOpen(true)}
             appIconId={appIconId}
             onOpenAppIcons={() => setIsAppIconOpen(true)}
+            palette={activePalette}
           />
         </div>
 

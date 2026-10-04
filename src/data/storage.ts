@@ -151,7 +151,7 @@ export class LocalStorageManager {
   static getFontId(): string {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.FONT_ID);
-      if (!stored || stored === 'roboto') {
+      if (!stored || stored === 'roboto' || stored === 'audiowide') {
         return DEFAULT_FONT_ID;
       }
       return stored;
@@ -366,9 +366,9 @@ export class LocalStorageManager {
       if (val === 'standard' || val === 'large' || val === 'huge') {
         return val;
       }
-      return 'standard';
+      return 'huge'; // 150% Default
     } catch {
-      return 'standard';
+      return 'huge';
     }
   }
 

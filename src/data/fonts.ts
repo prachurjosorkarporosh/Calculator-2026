@@ -90,4 +90,4 @@ export const FONTS_CATALOG: FontOption[] = [
   { id: 'patrick-hand', name: 'Patrick Hand', family: "'Patrick Hand', cursive", category: 'Handwriting', sample: '123,456.78 × 90' },
 ];
 
-export const DEFAULT_FONT_ID = 'audiowide';
+export const DEFAULT_FONT_ID = 'system';
