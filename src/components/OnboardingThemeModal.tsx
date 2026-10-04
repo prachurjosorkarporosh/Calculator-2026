@@ -19,6 +19,7 @@ import {
   Upload,
   Clock,
   Trash2,
+  X,
 } from 'lucide-react';
 import {
   THEME_PALETTES,
@@ -35,6 +36,8 @@ import {
   CustomUploadedWallpaper,
   optimizeWallpaperImage,
 } from '../data/customWallpapers.ts';
+import { ThemePreviewCard } from './ThemePreviewCard.tsx';
+import { LocalStorageManager } from '../data/storage.ts';
 import { CustomThemeColors } from '../types.ts';
 import { triggerHaptic } from '../utils/haptics.ts';
 
@@ -68,10 +71,11 @@ export const OnboardingThemeModal: React.FC<OnboardingThemeModalProps> = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load saved device uploaded wallpapers
+  // Load saved device uploaded wallpapers & mark onboarded so it NEVER shows a 2nd time!
   useEffect(() => {
     if (isOpen) {
       setSavedUserWallpapers(CustomWallpaperManager.getSavedWallpapers());
+      LocalStorageManager.setHasOnboarded(true);
     }
   }, [isOpen]);
 
@@ -154,9 +158,23 @@ export const OnboardingThemeModal: React.FC<OnboardingThemeModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 sm:p-4 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-[#0F121C] text-slate-100 rounded-3xl shadow-2xl border border-slate-700/80 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="w-full max-w-4xl bg-[#0F121C] text-slate-100 rounded-3xl shadow-2xl border border-slate-700/80 overflow-hidden flex flex-col max-h-[92vh] relative">
+        {/* Top-Right Dismiss Button */}
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('light');
+            onComplete();
+          }}
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          aria-label="Close"
+          title="Close (বন্ধ করুন)"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
         {/* Header Greeting Banner */}
-        <div className="p-4 sm:p-6 bg-gradient-to-r from-purple-950/60 via-slate-900 to-emerald-950/60 border-b border-slate-800 text-center relative">
+        <div className="p-4 sm:p-6 bg-gradient-to-r from-purple-950/60 via-slate-900 to-emerald-950/60 border-b border-slate-800 text-center relative pr-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold mb-2 border border-emerald-500/20">
             <Sparkles className="w-3.5 h-3.5" />
             <span>স্বাগতম! (Welcome to Calculator)</span>
@@ -201,7 +219,7 @@ export const OnboardingThemeModal: React.FC<OnboardingThemeModalProps> = ({
               }`}
             >
               <Palette className="w-4 h-4" />
-              <span>১৮+ থিম (Themes)</span>
+              <span>২১+ থিম (Themes)</span>
             </button>
           </div>
         </div>
@@ -405,59 +423,24 @@ export const OnboardingThemeModal: React.FC<OnboardingThemeModalProps> = ({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {filteredThemes.map((t: ThemePalette) => {
-                const isSelected = selectedThemeId === t.id;
-                return (
-                  <div
+            <div>
+              <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5 mb-2">
+                <Palette className="w-3.5 h-3.5 text-purple-400" />
+                <span>২১+ আল্ট্রা থিম কালেকশন ({filteredThemes.length})</span>
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {filteredThemes.map((t: ThemePalette) => (
+                  <ThemePreviewCard
                     key={t.id}
-                    onClick={() => {
+                    theme={t}
+                    isSelected={selectedThemeId === t.id}
+                    onSelect={() => {
                       triggerHaptic('light');
                       setSelectedThemeId(t.id);
                     }}
-                    className={`p-3.5 rounded-2xl cursor-pointer transition-all border ${
-                      isSelected
-                        ? 'bg-purple-950/40 border-purple-500 ring-3 ring-purple-500/40 shadow-xl'
-                        : 'bg-[#141724] border-slate-800 hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-xs sm:text-sm text-white truncate">
-                        {t.name}
-                      </span>
-                      {isSelected && (
-                        <div className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                          <Check className="w-3 h-3 stroke-[3]" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1.5 p-2 rounded-xl bg-black/40 border border-white/5">
-                      <div
-                        className="w-5 h-5 rounded-lg border border-white/20 shrink-0"
-                        style={{ backgroundColor: t.bg }}
-                      />
-                      <div
-                        className="flex-1 h-5 rounded-lg flex items-center justify-center text-[10px] font-bold"
-                        style={{ backgroundColor: t.numberBg, color: t.numberText }}
-                      >
-                        7
-                      </div>
-                      <div
-                        className="flex-1 h-5 rounded-lg flex items-center justify-center text-[10px] font-bold"
-                        style={{ backgroundColor: t.operatorBg, color: t.operatorText }}
-                      >
-                        ×
-                      </div>
-                      <div
-                        className="flex-1 h-5 rounded-lg flex items-center justify-center text-[10px] font-bold"
-                        style={{ backgroundColor: t.equalsBg, color: t.equalsText }}
-                      >
-                        =
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>

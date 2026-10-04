@@ -45,6 +45,7 @@ import {
   optimizeWallpaperImage,
 } from '../data/customWallpapers.ts';
 import { CustomThemeColors } from '../types.ts';
+import { ThemePreviewCard } from './ThemePreviewCard.tsx';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
 
@@ -392,75 +393,17 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
 
               {/* Themes Grid */}
               <div className="flex-1 overflow-y-auto p-3 sm:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filteredThemes.map((t: ThemePalette) => {
-                  const isSelected = activeThemeId === t.id;
-                  return (
-                    <div
-                      key={t.id}
-                      onClick={() => {
-                        triggerHaptic('medium');
-                        onSelectThemeId(t.id);
-                      }}
-                      className={`p-3.5 rounded-2xl cursor-pointer transition-all border flex flex-col justify-between ${
-                        isSelected
-                          ? 'bg-purple-950/40 border-purple-500 ring-2 ring-purple-500/30 shadow-lg'
-                          : 'bg-[#141724] border-slate-800/80 hover:border-slate-700 hover:bg-[#181C2E]'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <div>
-                          <div className="font-bold text-xs sm:text-sm text-white flex items-center gap-1.5">
-                            {t.name}
-                          </div>
-                          <div className="text-[10px] text-purple-400 font-medium mt-0.5">
-                            {t.category}
-                          </div>
-                        </div>
-                        {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                            <Check className="w-3 h-3 stroke-[3]" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Swatch Preview Bar */}
-                      <div className="flex items-center gap-1.5 p-2 rounded-xl bg-black/40 border border-white/5">
-                        <div
-                          className="w-5 h-5 rounded-lg border border-white/20 shrink-0"
-                          style={{ backgroundColor: t.bg }}
-                          title="Background"
-                        />
-                        <div
-                          className="flex-1 h-5 rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-bold"
-                          style={{
-                            backgroundColor: t.numberBg,
-                            color: t.numberText,
-                          }}
-                        >
-                          7
-                        </div>
-                        <div
-                          className="flex-1 h-5 rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-bold"
-                          style={{
-                            backgroundColor: t.operatorBg,
-                            color: t.operatorText,
-                          }}
-                        >
-                          ×
-                        </div>
-                        <div
-                          className="flex-1 h-5 rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-bold"
-                          style={{
-                            backgroundColor: t.equalsBg,
-                            color: t.equalsText,
-                          }}
-                        >
-                          =
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {filteredThemes.map((t: ThemePalette) => (
+                  <ThemePreviewCard
+                    key={t.id}
+                    theme={t}
+                    isSelected={activeThemeId === t.id}
+                    onSelect={() => {
+                      triggerHaptic('medium');
+                      onSelectThemeId(t.id);
+                    }}
+                  />
+                ))}
               </div>
             </div>
           )}

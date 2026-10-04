@@ -42,6 +42,7 @@ import {
   optimizeWallpaperImage,
 } from '../data/customWallpapers.ts';
 import { CustomThemeColors } from '../types.ts';
+import { ThemePreviewCard } from './ThemePreviewCard.tsx';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
 
@@ -349,59 +350,18 @@ export const ThemeCustomizerModal: React.FC<ThemeCustomizerModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {filteredThemes.map((t: ThemePalette) => {
-                    const isSelected = activeThemeId === t.id;
-                    return (
-                      <div
-                        key={t.id}
-                        onClick={() => {
-                          triggerHaptic('medium');
-                          onSelectThemeId(t.id);
-                        }}
-                        className={`p-3 rounded-2xl cursor-pointer transition-all border ${
-                          isSelected
-                            ? 'bg-purple-950/40 border-purple-500 shadow-md ring-2 ring-purple-500/30'
-                            : 'bg-[#141724] border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-bold text-xs text-white truncate">
-                            {t.name}
-                          </span>
-                          {isSelected && (
-                            <span className="text-[10px] text-purple-400 font-bold flex items-center gap-1">
-                              <Check className="w-3 h-3 stroke-[3]" /> Active
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 p-1.5 rounded-xl bg-black/40 border border-white/5">
-                          <div
-                            className="w-4 h-4 rounded-md border border-white/20"
-                            style={{ backgroundColor: t.bg }}
-                          />
-                          <div
-                            className="flex-1 h-4 rounded-md flex items-center justify-center text-[9px] font-bold"
-                            style={{ backgroundColor: t.numberBg, color: t.numberText }}
-                          >
-                            7
-                          </div>
-                          <div
-                            className="flex-1 h-4 rounded-md flex items-center justify-center text-[9px] font-bold"
-                            style={{ backgroundColor: t.operatorBg, color: t.operatorText }}
-                          >
-                            ×
-                          </div>
-                          <div
-                            className="flex-1 h-4 rounded-md flex items-center justify-center text-[9px] font-bold"
-                            style={{ backgroundColor: t.equalsBg, color: t.equalsText }}
-                          >
-                            =
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredThemes.map((t: ThemePalette) => (
+                    <ThemePreviewCard
+                      key={t.id}
+                      theme={t}
+                      isSelected={activeThemeId === t.id}
+                      onSelect={() => {
+                        triggerHaptic('medium');
+                        onSelectThemeId(t.id);
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             )}

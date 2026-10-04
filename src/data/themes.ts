@@ -11,6 +11,7 @@ export { CURATED_WALLPAPERS, type WallpaperOption, WALLPAPER_CATEGORIES };
 export interface ThemePalette {
   id: string;
   name: string;
+  nameBn?: string;
   category: 'OLED & Dark' | 'Neon & Cyber' | 'Glass & Aurora' | 'Pastel & Light' | 'Retro & Tech' | 'Nature & Earth';
   isDark: boolean;
   bg: string;
@@ -61,6 +62,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'pixel-light',
     name: 'Material White (Default)',
+    nameBn: 'ম্যাটেরিয়াল লাইট হোয়াইট',
     category: 'Pastel & Light',
     isDark: false,
     bg: '#FFFFFF',
@@ -85,6 +87,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'material-dark',
     name: 'Material Charcoal',
+    nameBn: 'চারকোল ডার্ক প্রিমিয়াম',
     category: 'OLED & Dark',
     isDark: true,
     bg: '#121316',
@@ -109,6 +112,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'photo-nebula',
     name: 'Cosmic Nebula (Photo + Glass)',
+    nameBn: 'কসমিক নেবুলা ও গ্লাস',
     category: 'Glass & Aurora',
     isDark: true,
     bg: '#0B0D19',
@@ -137,6 +141,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'photo-aurora',
     name: 'Aurora Borealis (Photo + Glass)',
+    nameBn: 'অরোরা বরিয়ালিস গ্লাস',
     category: 'Glass & Aurora',
     isDark: true,
     bg: '#051A18',
@@ -165,6 +170,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'animated-aurora',
     name: 'Fluid Aurora (Live Animated)',
+    nameBn: 'ফ্লুইড অ্যানিমেটেড অরোরা',
     category: 'Glass & Aurora',
     isDark: true,
     bg: '#0f172a',
@@ -192,6 +198,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'amoled-black',
     name: 'AMOLED Pure Pitch',
+    nameBn: 'আমোলেড পিচ ব্ল্যাক',
     category: 'OLED & Dark',
     isDark: true,
     bg: '#000000',
@@ -216,6 +223,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'nord-frost',
     name: 'Nord Frost',
+    nameBn: 'নর্ড ফ্রস্ট আর্কটিক ব্লু',
     category: 'OLED & Dark',
     isDark: true,
     bg: '#2E3440',
@@ -240,6 +248,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'cyberpunk',
     name: 'Cyberpunk Neon',
+    nameBn: 'সাইবারপাঙ্ক নিয়ন সাইয়ান',
     category: 'Neon & Cyber',
     isDark: true,
     bg: '#0B0C10',
@@ -264,6 +273,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'sunset-glow',
     name: 'Sunset Twilight',
+    nameBn: 'সানসেট টুইলাইট রোজ',
     category: 'Pastel & Light',
     isDark: true,
     bg: '#1A0E1A',
@@ -288,6 +298,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'emerald-forest',
     name: 'Emerald Forest',
+    nameBn: 'এমেরাল্ড গ্রিন ফরেস্ট',
     category: 'Nature & Earth',
     isDark: true,
     bg: '#051E17',
@@ -312,6 +323,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'deep-ocean',
     name: 'Deep Maritime Navy',
+    nameBn: 'ডিপ ওশান নেভি ব্লু',
     category: 'Nature & Earth',
     isDark: true,
     bg: '#0A192F',
@@ -336,6 +348,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'dracula',
     name: 'Dracula Purple',
+    nameBn: 'ড্রাকুলা ক্লাসিক পার্পল',
     category: 'Neon & Cyber',
     isDark: true,
     bg: '#282A36',
@@ -360,6 +373,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'rose-blush',
     name: 'Rose Pastel Blush',
+    nameBn: 'রোজ প্যাস্টেল ব্লাশ',
     category: 'Pastel & Light',
     isDark: false,
     bg: '#FDF2F4',
@@ -384,6 +398,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'monochrome',
     name: 'Swiss Monochrome',
+    nameBn: 'সুইস মিনিমাল ব্ল্যাক & হোয়াইট',
     category: 'Pastel & Light',
     isDark: false,
     bg: '#F4F4F5',
@@ -408,6 +423,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'matcha-latte',
     name: 'Matcha Latte',
+    nameBn: 'মাচা লাতে অর্গানিক ক্রিম',
     category: 'Nature & Earth',
     isDark: false,
     bg: '#F3F4EE',
@@ -432,6 +448,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'classic-casio',
     name: 'Retro Casio 991 (Classic)',
+    nameBn: 'রেট্রো ক্যাসিও ৯৯১ সায়েন্টিফিক',
     category: 'Retro & Tech',
     isDark: true,
     bg: '#1C2127',
@@ -456,6 +473,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'ios-dark',
     name: 'iOS Cupertino Dark',
+    nameBn: 'আইওএস কিউপারটিনো ডার্ক',
     category: 'OLED & Dark',
     isDark: true,
     bg: '#000000',
@@ -480,6 +498,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'matrix-phosphor',
     name: 'Matrix Phosphor Terminal',
+    nameBn: 'ম্যাট্রিক্স গ্রিন টার্মিনাল',
     category: 'Retro & Tech',
     isDark: true,
     bg: '#050B05',
@@ -504,6 +523,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'crimson-gaming',
     name: 'Crimson Cyber Gaming',
+    nameBn: 'ক্রিমসন সাইবার গেমিং',
     category: 'Neon & Cyber',
     isDark: true,
     bg: '#0F080A',
@@ -528,6 +548,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'desert-luxury',
     name: 'Sahara Obsidian & Gold',
+    nameBn: 'সাহারা অবসিডিয়ান & গোল্ড',
     category: 'OLED & Dark',
     isDark: true,
     bg: '#121110',
@@ -552,6 +573,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'tokyo-sakura',
     name: 'Tokyo Sakura Frosted Glass',
+    nameBn: 'টোকিও সাকুরা ফ্রস্টেড গ্লাস',
     category: 'Glass & Aurora',
     isDark: true,
     bg: '#1A131A',

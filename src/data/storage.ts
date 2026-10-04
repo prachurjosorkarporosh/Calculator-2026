@@ -50,6 +50,8 @@ export interface UserSavedWallpaper {
   timestamp: number;
 }
 
+let _inMemoryHasOnboarded: boolean | null = null;
+
 export class LocalStorageManager {
   // History management
   static getHistory(): HistoryItem[] {
@@ -413,18 +415,34 @@ export class LocalStorageManager {
     }
   }
 
-  // First-time Onboarding
+  // First-time Onboarding (never shows twice)
   static getHasOnboarded(): boolean {
+    if (_inMemoryHasOnboarded === true) return true;
     try {
-      return localStorage.getItem(STORAGE_KEYS.HAS_ONBOARDED) === 'true';
-    } catch {
+      const stored =
+        localStorage.getItem(STORAGE_KEYS.HAS_ONBOARDED) === 'true' ||
+        localStorage.getItem('prachurjo_calc_has_onboarded_v2') === 'true' ||
+        localStorage.getItem('prachurjo_calc_has_onboarded_v1') === 'true' ||
+        localStorage.getItem('prachurjo_calc_has_onboarded') === 'true' ||
+        sessionStorage.getItem('prachurjo_calc_has_onboarded') === 'true';
+      if (stored) {
+        _inMemoryHasOnboarded = true;
+        return true;
+      }
       return false;
+    } catch {
+      return _inMemoryHasOnboarded ?? false;
     }
   }
 
   static setHasOnboarded(val = true): void {
+    _inMemoryHasOnboarded = val;
     try {
       localStorage.setItem(STORAGE_KEYS.HAS_ONBOARDED, String(val));
+      localStorage.setItem('prachurjo_calc_has_onboarded_v2', String(val));
+      localStorage.setItem('prachurjo_calc_has_onboarded_v1', String(val));
+      localStorage.setItem('prachurjo_calc_has_onboarded', String(val));
+      sessionStorage.setItem('prachurjo_calc_has_onboarded', String(val));
     } catch (e) {
       console.error('Failed to save onboarding state:', e);
     }
