@@ -44,9 +44,14 @@ import { VoiceCalculatorModal } from './components/VoiceCalculatorModal.tsx';
 import { PhoneDatabaseModal } from './components/PhoneDatabaseModal.tsx';
 import { AppIconModal } from './components/AppIconModal.tsx';
 import { OnboardingThemeModal } from './components/OnboardingThemeModal.tsx';
+import { AndroidStatusBar } from './components/AndroidStatusBar.tsx';
+import { AndroidNavigationBar } from './components/AndroidNavigationBar.tsx';
+import { AndroidApkModal } from './components/AndroidApkModal.tsx';
+import { SparkleEffect } from './components/SparkleEffect.tsx';
 import { PhoneDatabaseManager } from './data/phoneDatabase.ts';
 import { updateDocumentFavicon } from './data/appIcons.ts';
-import { playKeypressSound } from './utils/sound.ts';
+import { playKeypressSound, setMasterSoundVolume } from './utils/sound.ts';
+import { speakCalculationResult } from './utils/speech.ts';
 import { setHapticsEnabled, triggerHaptic } from './utils/haptics.ts';
 
 export default function App() {
@@ -138,6 +143,25 @@ export default function App() {
     LocalStorageManager.getSystemTimeThemeEnabled()
   );
   const [currentPage, setCurrentPage] = useState<'calculator' | 'theme-studio'>('calculator');
+
+  // New Sound, Voice, Animation, Wallpaper Sync & Android Mode States
+  const [soundVolume, setSoundVolume] = useState<number>(LocalStorageManager.getSoundVolume());
+  const [voiceAutoSpeak, setVoiceAutoSpeak] = useState<boolean>(LocalStorageManager.getVoiceAutoSpeak());
+  const [voiceKeyClick, setVoiceKeyClick] = useState<boolean>(LocalStorageManager.getVoiceKeyClick());
+  const [voiceLanguage, setVoiceLanguage] = useState<string>(LocalStorageManager.getVoiceLanguage());
+  const [voicePitch, setVoicePitch] = useState<number>(LocalStorageManager.getVoicePitch());
+  const [voiceRate, setVoiceRate] = useState<number>(LocalStorageManager.getVoiceRate());
+  const [animationsEnabled, setAnimationsEnabled] = useState<boolean>(LocalStorageManager.getAnimationsEnabled());
+  const [effectsEnabled, setEffectsEnabled] = useState<boolean>(LocalStorageManager.getEffectsEnabled());
+  const [celebrationEnabled, setCelebrationEnabled] = useState<boolean>(LocalStorageManager.getCelebrationEnabled());
+  const [syncWallpaperWithTheme, setSyncWallpaperWithTheme] = useState<boolean>(LocalStorageManager.getSyncWallpaperWithTheme());
+  const [androidApkMode, setAndroidApkMode] = useState<boolean>(LocalStorageManager.getAndroidApkMode());
+  const [navBarStyle, setNavBarStyle] = useState<'buttons' | 'gesture'>(LocalStorageManager.getNavBarStyle());
+  const [isAndroidApkOpen, setIsAndroidApkOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMasterSoundVolume(soundVolume);
+  }, [soundVolume]);
 
   // Automatic Day/Night Theme based on User's System Time
   useEffect(() => {
@@ -428,6 +452,10 @@ export default function App() {
       setIsEvaluated(true);
       setEvaluationKey((prev) => prev + 1);
 
+      if (voiceAutoSpeak) {
+        speakCalculationResult(evalRes.formatted, voiceLanguage, voicePitch, voiceRate);
+      }
+
       const savedItem = LocalStorageManager.saveHistoryItem(
         expression,
         evalRes.formatted
@@ -437,8 +465,11 @@ export default function App() {
     } else {
       setError(evalRes.error || 'Error');
       setEvaluationKey((prev) => prev + 1);
+      if (voiceAutoSpeak) {
+        speakCalculationResult(evalRes.error || 'Error', voiceLanguage, voicePitch, voiceRate);
+      }
     }
-  }, [expression, angleMode]);
+  }, [expression, angleMode, voiceAutoSpeak, voiceLanguage, voicePitch, voiceRate]);
 
   // Apply expression and calculate from Voice Calculator
   const handleApplyVoiceCalculation = useCallback(
@@ -452,6 +483,10 @@ export default function App() {
           setIsEvaluated(true);
           setEvaluationKey((prev) => prev + 1);
 
+          if (voiceAutoSpeak) {
+            speakCalculationResult(evalRes.formatted, voiceLanguage, voicePitch, voiceRate);
+          }
+
           const savedItem = LocalStorageManager.saveHistoryItem(
             voiceExpr,
             evalRes.formatted
@@ -461,10 +496,13 @@ export default function App() {
         } else {
           setError(evalRes.error || 'Error');
           setEvaluationKey((prev) => prev + 1);
+          if (voiceAutoSpeak) {
+            speakCalculationResult(evalRes.error || 'Error', voiceLanguage, voicePitch, voiceRate);
+          }
         }
       }
     },
-    [angleMode]
+    [angleMode, voiceAutoSpeak, voiceLanguage, voicePitch, voiceRate]
   );
 
   // Helper to extract active numeric value for memory operations
@@ -850,6 +888,216 @@ export default function App() {
     isAppIconOpen,
   ]);
 
+  // Handlers for Audio, Voice, Animation, Wallpaper Sync & Android Mode
+  const handleToggleSyncWallpaperWithTheme = useCallback(() => {
+    setSyncWallpaperWithTheme((prev) => {
+      const next = !prev;
+      LocalStorageManager.saveSyncWallpaperWithTheme(next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleAnimations = useCallback(() => {
+    setAnimationsEnabled((prev) => {
+      const next = !prev;
+      LocalStorageManager.saveAnimationsEnabled(next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleEffects = useCallback(() => {
+    setEffectsEnabled((prev) => {
+      const next = !prev;
+      LocalStorageManager.saveEffectsEnabled(next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleCelebration = useCallback(() => {
+    setCelebrationEnabled((prev) => {
+      const next = !prev;
+      LocalStorageManager.saveCelebrationEnabled(next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleAndroidApkMode = useCallback(() => {
+    setAndroidApkMode((prev) => {
+      const next = !prev;
+      LocalStorageManager.saveAndroidApkMode(next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleVoiceAutoSpeak = useCallback(() => {
+    setVoiceAutoSpeak((prev) => {
+      const next = !prev;
+      LocalStorageManager.saveVoiceAutoSpeak(next);
+      return next;
+    });
+  }, []);
+
+  const handleToggleVoiceKeyClick = useCallback(() => {
+    setVoiceKeyClick((prev) => {
+      const next = !prev;
+      LocalStorageManager.saveVoiceKeyClick(next);
+      return next;
+    });
+  }, []);
+
+  const handleChangeVoiceLanguage = useCallback((lang: string) => {
+    setVoiceLanguage(lang);
+    LocalStorageManager.saveVoiceLanguage(lang);
+  }, []);
+
+  const handleChangeVoicePitch = useCallback((pitch: number) => {
+    setVoicePitch(pitch);
+    LocalStorageManager.saveVoicePitch(pitch);
+  }, []);
+
+  const handleChangeVoiceRate = useCallback((rate: number) => {
+    setVoiceRate(rate);
+    LocalStorageManager.saveVoiceRate(rate);
+  }, []);
+
+  const handleChangeSoundVolume = useCallback((vol: number) => {
+    setSoundVolume(vol);
+    LocalStorageManager.saveSoundVolume(vol);
+    setMasterSoundVolume(vol);
+  }, []);
+
+  const handleChangeNavBarStyle = useCallback((style: 'buttons' | 'gesture') => {
+    setNavBarStyle(style);
+    LocalStorageManager.saveNavBarStyle(style);
+  }, []);
+
+  const hasActiveModal = Boolean(
+    currentPage === 'theme-studio' ||
+    isThemesOpen ||
+    isFontsOpen ||
+    isAppIconOpen ||
+    isCustomizationOpen ||
+    isHistoryOpen ||
+    isSettingsDialogOpen ||
+    isAndroidApkOpen ||
+    isOnboardingOpen ||
+    isPrivacyDialogOpen ||
+    isHelpDialogOpen ||
+    isAboutDialogOpen ||
+    isVoiceOpen ||
+    isDatabaseOpen ||
+    isMenuOpen
+  );
+
+  const handleAndroidBack = useCallback(() => {
+    if (currentPage === 'theme-studio') {
+      setCurrentPage('calculator');
+      return;
+    }
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+      return;
+    }
+    if (isSettingsDialogOpen) {
+      setIsSettingsDialogOpen(false);
+      return;
+    }
+    if (isHistoryOpen) {
+      setIsHistoryOpen(false);
+      return;
+    }
+    if (isThemesOpen) {
+      setIsThemesOpen(false);
+      return;
+    }
+    if (isFontsOpen) {
+      setIsFontsOpen(false);
+      return;
+    }
+    if (isAppIconOpen) {
+      setIsAppIconOpen(false);
+      return;
+    }
+    if (isCustomizationOpen) {
+      setIsCustomizationOpen(false);
+      return;
+    }
+    if (isAndroidApkOpen) {
+      setIsAndroidApkOpen(false);
+      return;
+    }
+    if (isVoiceOpen) {
+      setIsVoiceOpen(false);
+      return;
+    }
+    if (isDatabaseOpen) {
+      setIsDatabaseOpen(false);
+      return;
+    }
+    if (isPrivacyDialogOpen) {
+      setIsPrivacyDialogOpen(false);
+      return;
+    }
+    if (isHelpDialogOpen) {
+      setIsHelpDialogOpen(false);
+      return;
+    }
+    if (isAboutDialogOpen) {
+      setIsAboutDialogOpen(false);
+      return;
+    }
+    if (isOnboardingOpen) {
+      setIsOnboardingOpen(false);
+      return;
+    }
+    // No modal is open -> delete last input character
+    handleBackspace();
+  }, [
+    currentPage,
+    isMenuOpen,
+    isSettingsDialogOpen,
+    isHistoryOpen,
+    isThemesOpen,
+    isFontsOpen,
+    isAppIconOpen,
+    isCustomizationOpen,
+    isAndroidApkOpen,
+    isVoiceOpen,
+    isDatabaseOpen,
+    isPrivacyDialogOpen,
+    isHelpDialogOpen,
+    isAboutDialogOpen,
+    isOnboardingOpen,
+    handleBackspace,
+  ]);
+
+  const handleAndroidHome = useCallback(() => {
+    setCurrentPage('calculator');
+    setIsMenuOpen(false);
+    setIsSettingsDialogOpen(false);
+    setIsHistoryOpen(false);
+    setIsThemesOpen(false);
+    setIsFontsOpen(false);
+    setIsAppIconOpen(false);
+    setIsCustomizationOpen(false);
+    setIsAndroidApkOpen(false);
+    setIsVoiceOpen(false);
+    setIsDatabaseOpen(false);
+    setIsPrivacyDialogOpen(false);
+    setIsHelpDialogOpen(false);
+    setIsAboutDialogOpen(false);
+    setIsOnboardingOpen(false);
+    // Soft reset calculator
+    setExpression('');
+    setResult('');
+    setError(null);
+    triggerHaptic('medium');
+  }, []);
+
+  const handleAndroidRecent = useCallback(() => {
+    setIsHistoryOpen((prev) => !prev);
+  }, []);
+
   // Dedicated Theme Studio Page View
   if (currentPage === 'theme-studio') {
     return (
@@ -865,9 +1113,32 @@ export default function App() {
 
   return (
     <div
-      style={{ fontFamily: activeFont.family }}
-      className="min-h-screen w-full bg-[#E5E9F0] dark:bg-[#0B0D0F] flex items-center justify-center p-0 sm:p-4 select-none transition-colors"
+      style={{
+        fontFamily: activeFont.family,
+        backgroundImage:
+          syncWallpaperWithTheme && activePalette.bgImage
+            ? `url(${activePalette.bgImage})`
+            : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundColor: activePalette.bg,
+      }}
+      className={`min-h-screen w-full flex items-center justify-center select-none transition-all duration-500 relative ${
+        androidApkMode ? 'p-0' : 'p-0 sm:p-4'
+      } ${activePalette.animatedBg ? 'animate-aurora-mesh' : ''}`}
     >
+      {/* Ambient backdrop blur overlay for whole website */}
+      {syncWallpaperWithTheme && activePalette.bgImage && !androidApkMode && (
+        <div
+          className="absolute inset-0 pointer-events-none z-0 backdrop-blur-2xl transition-all duration-500"
+          style={{
+            backgroundColor: activePalette.isDark
+              ? 'rgba(0, 0, 0, 0.65)'
+              : 'rgba(255, 255, 255, 0.45)',
+          }}
+        />
+      )}
+
       {/* Android Device Container / Frame */}
       <main
         style={{
@@ -879,11 +1150,13 @@ export default function App() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
-        className={`relative w-full sm:max-w-[430px] h-screen sm:h-[890px] sm:max-h-[96vh] sm:rounded-[44px] sm:shadow-2xl sm:border-[8px] flex flex-col overflow-hidden transition-all duration-300 ${
-          activePalette.animatedBg ? 'animate-aurora-mesh' : ''
-        }`}
+        className={`relative flex flex-col overflow-hidden transition-all duration-300 z-10 ${
+          androidApkMode
+            ? 'w-full h-screen max-w-full rounded-none border-none shadow-none'
+            : 'w-full sm:max-w-[430px] h-screen sm:h-[890px] sm:max-h-[96vh] sm:rounded-[44px] sm:shadow-2xl sm:border-[8px]'
+        } ${activePalette.animatedBg ? 'animate-aurora-mesh' : ''}`}
       >
-        {/* Background Blur Overlay for Photo Wallpapers */}
+        {/* Background Blur Overlay for Photo Wallpapers inside frame */}
         {activePalette.bgImage && (
           <div
             className="absolute inset-0 pointer-events-none z-0 transition-all duration-300"
@@ -897,16 +1170,17 @@ export default function App() {
           />
         )}
 
-        {/* Subtle Android Notch / Punch Hole on Desktop Frame */}
-        <div className="hidden sm:block absolute top-2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-slate-800 dark:bg-slate-900 z-30 pointer-events-none" />
+        {/* Real Android Status Bar at top */}
+        <AndroidStatusBar palette={activePalette} />
 
-        {/* Top Bar with History, Voice & 3-Dot Menu */}
+        {/* Top Bar with History, Voice, APK Center & 3-Dot Menu */}
         <div className="relative z-10">
           <TopBar
             onOpenHistory={() => setIsHistoryOpen(true)}
             onOpenMenu={() => setIsMenuOpen(true)}
             onOpenVoice={() => setIsVoiceOpen(true)}
             onOpenThemeStudio={() => setCurrentPage('theme-studio')}
+            onOpenAndroidApk={() => setIsAndroidApkOpen(true)}
             personalName={personalName}
             onOpenCustomization={() => setIsCustomizationOpen(true)}
             appIconId={appIconId}
@@ -915,7 +1189,7 @@ export default function App() {
           />
         </div>
 
-        {/* Display Area for Expressions & Results */}
+        {/* Display Area for Expressions & Results + Celebration Sparkle Burst */}
         <div className="relative z-10 flex-1 flex flex-col justify-end min-h-0">
           <DisplayArea
             expression={expression}
@@ -931,6 +1205,10 @@ export default function App() {
             formatThousands={formatThousands}
             evaluationKey={evaluationKey}
           />
+          <SparkleEffect
+            triggerKey={celebrationEnabled ? evaluationKey : 0}
+            accentColor={activePalette.equalsBg || activePalette.accent}
+          />
         </div>
 
         {/* Chevron Expand/Collapse Control for Scientific Mode */}
@@ -942,7 +1220,7 @@ export default function App() {
         </div>
 
         {/* Keypad Container */}
-        <div className="relative z-10 w-full px-4 pb-6 pt-1 flex flex-col justify-end">
+        <div className="relative z-10 w-full px-4 pb-2 pt-1 flex flex-col justify-end">
           {/* Scientific Mode Panel (Collapsible) */}
           {isScientificExpanded && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-150">
@@ -959,9 +1237,16 @@ export default function App() {
                 hasMemoryValue={memoryValue !== null}
                 soundEnabled={soundEnabled}
                 soundType={soundType}
+                soundVolume={soundVolume}
                 shape={buttonShape}
                 scale={keypadScale}
                 palette={activePalette}
+                animationsEnabled={animationsEnabled}
+                effectsEnabled={effectsEnabled}
+                voiceKeyClick={voiceKeyClick}
+                voiceLanguage={voiceLanguage}
+                voicePitch={voicePitch}
+                voiceRate={voiceRate}
               />
             </div>
           )}
@@ -976,11 +1261,33 @@ export default function App() {
             onInput={handleInput}
             soundEnabled={soundEnabled}
             soundType={soundType}
+            soundVolume={soundVolume}
             shape={buttonShape}
             scale={keypadScale}
             palette={activePalette}
+            animationsEnabled={animationsEnabled}
+            effectsEnabled={effectsEnabled}
+            voiceKeyClick={voiceKeyClick}
+            voiceLanguage={voiceLanguage}
+            voicePitch={voicePitch}
+            voiceRate={voiceRate}
           />
         </div>
+
+        {/* Working Android System Navigation Bar (3-Button or Gesture Bar) */}
+        <AndroidNavigationBar
+          palette={activePalette}
+          navStyle={navBarStyle}
+          hasActiveModal={hasActiveModal}
+          onBack={handleAndroidBack}
+          onHome={handleAndroidHome}
+          onRecent={handleAndroidRecent}
+          onToggleNavStyle={() => {
+            const next = navBarStyle === 'buttons' ? 'gesture' : 'buttons';
+            setNavBarStyle(next);
+            LocalStorageManager.saveNavBarStyle(next);
+          }}
+        />
 
         {/* Overflow 3-Dot Popup Menu */}
         <ThreeDotMenu
@@ -995,6 +1302,7 @@ export default function App() {
           }}
           onOpenVoice={() => setIsVoiceOpen(true)}
           onOpenDatabase={() => setIsDatabaseOpen(true)}
+          onOpenAndroidApk={() => setIsAndroidApkOpen(true)}
           onOpenThemes={() => {
             setIsMenuOpen(false);
             setCurrentPage('theme-studio');
@@ -1095,8 +1403,40 @@ export default function App() {
           palette={activePalette}
           soundEnabled={soundEnabled}
           onToggleSound={handleToggleSound}
+          soundType={soundType}
+          onChangeSoundType={handleChangeSoundType}
+          soundVolume={soundVolume}
+          onChangeSoundVolume={handleChangeSoundVolume}
+          voiceAutoSpeak={voiceAutoSpeak}
+          onToggleVoiceAutoSpeak={handleToggleVoiceAutoSpeak}
+          voiceKeyClick={voiceKeyClick}
+          onToggleVoiceKeyClick={handleToggleVoiceKeyClick}
+          voiceLanguage={voiceLanguage}
+          onChangeVoiceLanguage={handleChangeVoiceLanguage}
+          voicePitch={voicePitch}
+          onChangeVoicePitch={handleChangeVoicePitch}
+          voiceRate={voiceRate}
+          onChangeVoiceRate={handleChangeVoiceRate}
+          animationsEnabled={animationsEnabled}
+          onToggleAnimations={handleToggleAnimations}
+          effectsEnabled={effectsEnabled}
+          onToggleEffects={handleToggleEffects}
+          celebrationEnabled={celebrationEnabled}
+          onToggleCelebration={handleToggleCelebration}
+          syncWallpaperWithTheme={syncWallpaperWithTheme}
+          onToggleSyncWallpaperWithTheme={handleToggleSyncWallpaperWithTheme}
           systemTimeThemeEnabled={systemTimeThemeEnabled}
           onToggleSystemTimeTheme={handleToggleSystemTimeTheme}
+          androidApkMode={androidApkMode}
+          onToggleAndroidApkMode={handleToggleAndroidApkMode}
+          onOpenAndroidApkModal={() => {
+            setIsSettingsDialogOpen(false);
+            setIsAndroidApkOpen(true);
+          }}
+          hapticEnabled={hapticEnabled}
+          onToggleHaptic={handleToggleHaptic}
+          formatThousands={formatThousands}
+          onToggleFormatThousands={handleToggleFormatThousands}
           appIconId={appIconId}
           onOpenAppIcons={() => {
             setIsSettingsDialogOpen(false);
@@ -1106,7 +1446,18 @@ export default function App() {
             setIsSettingsDialogOpen(false);
             setIsOnboardingOpen(true);
           }}
+          navBarStyle={navBarStyle}
+          onChangeNavBarStyle={handleChangeNavBarStyle}
           onClose={() => setIsSettingsDialogOpen(false)}
+        />
+
+        {/* Android APK Download & Installation Modal */}
+        <AndroidApkModal
+          isOpen={isAndroidApkOpen}
+          palette={activePalette}
+          isAndroidApkMode={androidApkMode}
+          onToggleAndroidApkMode={handleToggleAndroidApkMode}
+          onClose={() => setIsAndroidApkOpen(false)}
         />
 
         {/* First-Time Onboarding Theme & Wallpaper Selector Modal */}

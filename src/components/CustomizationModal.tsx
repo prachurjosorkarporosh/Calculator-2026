@@ -137,6 +137,12 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
     { id: 'pop', label: 'Bubble Pop', desc: 'Playful organic pop' },
     { id: 'mechanical', label: 'Mechanical Switch', desc: 'Crisp mechanical keystroke' },
     { id: 'beep', label: 'Digital Beep', desc: 'Classic digital watch tone' },
+    { id: 'cyberpunk', label: 'Cyberpunk', desc: 'Synth wave pulse' },
+    { id: 'marimba', label: 'Marimba Chime', desc: 'Tuned harmonic chime' },
+    { id: 'typewriter', label: 'Typewriter', desc: 'Vintage mechanical clack' },
+    { id: 'bubble', label: 'Water Drop', desc: 'Liquid droplet pop' },
+    { id: 'laser', label: 'Sci-Fi Laser', desc: 'Futuristic arcade zap' },
+    { id: 'woodblock', label: 'Woodblock', desc: 'Organic percussion' },
   ];
 
   const handleNameSave = (e: React.FormEvent) => {

@@ -41,6 +41,18 @@ const STORAGE_KEYS = {
   BUTTON_BLUR: 'prachurjo_calc_button_blur_v1',
   HAS_ONBOARDED: 'prachurjo_calc_has_onboarded_v2',
   SYSTEM_TIME_THEME: 'prachurjo_calc_system_time_theme_v1',
+  SOUND_VOLUME: 'prachurjo_calc_sound_volume_v1',
+  VOICE_AUTO_SPEAK: 'prachurjo_calc_voice_auto_speak_v1',
+  VOICE_KEY_CLICK: 'prachurjo_calc_voice_key_click_v1',
+  VOICE_LANGUAGE: 'prachurjo_calc_voice_lang_v1',
+  VOICE_PITCH: 'prachurjo_calc_voice_pitch_v1',
+  VOICE_RATE: 'prachurjo_calc_voice_rate_v1',
+  ANIMATIONS_ENABLED: 'prachurjo_calc_animations_v1',
+  EFFECTS_ENABLED: 'prachurjo_calc_effects_v1',
+  CELEBRATION_ENABLED: 'prachurjo_calc_celebration_v1',
+  SYNC_WALLPAPER_THEME: 'prachurjo_calc_sync_wallpaper_v1',
+  STANDALONE_APK_MODE: 'prachurjo_calc_standalone_apk_v1',
+  NAV_BAR_STYLE: 'prachurjo_calc_nav_bar_style_v1',
 };
 
 export interface UserSavedWallpaper {
@@ -462,6 +474,215 @@ export class LocalStorageManager {
       localStorage.setItem(STORAGE_KEYS.SYSTEM_TIME_THEME, String(enabled));
     } catch (e) {
       console.error('Failed to save system time theme preference:', e);
+    }
+  }
+
+  // Sound Volume
+  static getSoundVolume(): number {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.SOUND_VOLUME);
+      return val !== null ? parseFloat(val) : 0.8;
+    } catch {
+      return 0.8;
+    }
+  }
+
+  static saveSoundVolume(vol: number): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SOUND_VOLUME, String(vol));
+    } catch (e) {
+      console.error('Failed to save sound volume:', e);
+    }
+  }
+
+  // Voice Settings - Default to false so it does not auto-speak without user enabling it
+  static getVoiceAutoSpeak(): boolean {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.VOICE_AUTO_SPEAK);
+      return val === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  static saveVoiceAutoSpeak(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.VOICE_AUTO_SPEAK, String(enabled));
+    } catch (e) {
+      console.error('Failed to save voice auto speak:', e);
+    }
+  }
+
+  static getVoiceKeyClick(): boolean {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.VOICE_KEY_CLICK);
+      return val === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  static saveVoiceKeyClick(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.VOICE_KEY_CLICK, String(enabled));
+    } catch (e) {
+      console.error('Failed to save voice key click:', e);
+    }
+  }
+
+  static getVoiceLanguage(): string {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.VOICE_LANGUAGE) || 'bn-BD';
+    } catch {
+      return 'bn-BD';
+    }
+  }
+
+  static saveVoiceLanguage(lang: string): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.VOICE_LANGUAGE, lang);
+    } catch (e) {
+      console.error('Failed to save voice language:', e);
+    }
+  }
+
+  static getVoicePitch(): number {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.VOICE_PITCH);
+      return val !== null ? parseFloat(val) : 1.0;
+    } catch {
+      return 1.0;
+    }
+  }
+
+  static saveVoicePitch(pitch: number): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.VOICE_PITCH, String(pitch));
+    } catch (e) {
+      console.error('Failed to save voice pitch:', e);
+    }
+  }
+
+  static getVoiceRate(): number {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.VOICE_RATE);
+      return val !== null ? parseFloat(val) : 0.95;
+    } catch {
+      return 0.95;
+    }
+  }
+
+  static saveVoiceRate(rate: number): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.VOICE_RATE, String(rate));
+    } catch (e) {
+      console.error('Failed to save voice rate:', e);
+    }
+  }
+
+  // Animation & Visual Effects
+  static getAnimationsEnabled(): boolean {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.ANIMATIONS_ENABLED);
+      return val !== null ? val === 'true' : true;
+    } catch {
+      return true;
+    }
+  }
+
+  static saveAnimationsEnabled(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ANIMATIONS_ENABLED, String(enabled));
+    } catch (e) {
+      console.error('Failed to save animations enabled:', e);
+    }
+  }
+
+  static getEffectsEnabled(): boolean {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.EFFECTS_ENABLED);
+      return val !== null ? val === 'true' : true;
+    } catch {
+      return true;
+    }
+  }
+
+  static saveEffectsEnabled(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.EFFECTS_ENABLED, String(enabled));
+    } catch (e) {
+      console.error('Failed to save effects enabled:', e);
+    }
+  }
+
+  static getCelebrationEnabled(): boolean {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.CELEBRATION_ENABLED);
+      return val !== null ? val === 'true' : true;
+    } catch {
+      return true;
+    }
+  }
+
+  static saveCelebrationEnabled(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.CELEBRATION_ENABLED, String(enabled));
+    } catch (e) {
+      console.error('Failed to save celebration enabled:', e);
+    }
+  }
+
+  // Sync Wallpaper with Theme
+  static getSyncWallpaperWithTheme(): boolean {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.SYNC_WALLPAPER_THEME);
+      return val !== null ? val === 'true' : true;
+    } catch {
+      return true;
+    }
+  }
+
+  static saveSyncWallpaperWithTheme(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SYNC_WALLPAPER_THEME, String(enabled));
+    } catch (e) {
+      console.error('Failed to save sync wallpaper preference:', e);
+    }
+  }
+
+  // Standalone Android Mode
+  static getAndroidApkMode(): boolean {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.STANDALONE_APK_MODE);
+      return val !== null ? val === 'true' : false;
+    } catch {
+      return false;
+    }
+  }
+
+  static saveAndroidApkMode(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.STANDALONE_APK_MODE, String(enabled));
+    } catch (e) {
+      console.error('Failed to save standalone apk mode preference:', e);
+    }
+  }
+
+  // Android Navigation Bar Style ('buttons' | 'gesture')
+  static getNavBarStyle(): 'buttons' | 'gesture' {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.NAV_BAR_STYLE);
+      return val === 'gesture' ? 'gesture' : 'buttons';
+    } catch {
+      return 'buttons';
+    }
+  }
+
+  static saveNavBarStyle(style: 'buttons' | 'gesture'): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.NAV_BAR_STYLE, style);
+    } catch (e) {
+      console.error('Failed to save nav bar style preference:', e);
     }
   }
 }

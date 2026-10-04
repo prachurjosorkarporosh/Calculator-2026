@@ -10,7 +10,17 @@ export type ThemeMode = 'system' | 'light' | 'dark';
 export type ButtonShape = 'round' | 'squircle' | 'soft' | 'sharp';
 export type KeypadScale = 'compact' | 'standard' | 'spacious' | 'jumbo' | 'ultra';
 export type DisplaySize = 'standard' | 'large' | 'huge';
-export type SoundEffectType = 'tactile' | 'pop' | 'mechanical' | 'beep';
+export type SoundEffectType =
+  | 'tactile'
+  | 'pop'
+  | 'mechanical'
+  | 'beep'
+  | 'cyberpunk'
+  | 'marimba'
+  | 'typewriter'
+  | 'bubble'
+  | 'laser'
+  | 'woodblock';
 
 export interface HistoryItem {
   id: string;
@@ -56,6 +66,17 @@ export interface UserPreferences {
   personalName?: string;
   soundEnabled: boolean;
   soundType: SoundEffectType;
+  soundVolume: number;
+  voiceAutoSpeak: boolean;
+  voiceKeyClick: boolean;
+  voiceLanguage: string;
+  voicePitch: number;
+  voiceRate: number;
+  animationsEnabled: boolean;
+  effectsEnabled: boolean;
+  celebrationEnabled: boolean;
+  syncWallpaperWithTheme: boolean;
+  androidApkMode: boolean;
   hapticEnabled: boolean;
   formatThousands: boolean;
   scientificExpanded: boolean;

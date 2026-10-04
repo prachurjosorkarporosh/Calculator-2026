@@ -1,12 +1,22 @@
 /**
- * Top Bar Component with Voice Calculator Access & Developer Website Visit Link
+ * Top Bar Component with Android APK Direct Access & Voice Calculator
  * Developer: Prachurjo Sorkar Porosh
  * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  */
 
 import React from 'react';
-import { History, MoreVertical, Mic, Palette, Sparkles, Globe, ExternalLink } from 'lucide-react';
+import {
+  History,
+  MoreVertical,
+  Mic,
+  Palette,
+  Sparkles,
+  Globe,
+  ExternalLink,
+  Smartphone,
+  Download,
+} from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { getAppIconDataUri } from '../data/appIcons.ts';
 import { ThemePalette } from '../data/themes.ts';
@@ -16,6 +26,7 @@ interface TopBarProps {
   onOpenMenu: (e: React.MouseEvent<HTMLButtonElement>) => void;
   onOpenVoice: () => void;
   onOpenThemeStudio?: () => void;
+  onOpenAndroidApk?: () => void;
   personalName?: string;
   onOpenCustomization?: () => void;
   appIconId?: string;
@@ -28,6 +39,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   onOpenMenu,
   onOpenVoice,
   onOpenThemeStudio,
+  onOpenAndroidApk,
   personalName,
   onOpenCustomization,
   appIconId = 'emerald-pro',
@@ -37,9 +49,9 @@ export const TopBar: React.FC<TopBarProps> = ({
   const accentColor = palette?.equalsBg || palette?.accent || '#10b981';
 
   return (
-    <header className="w-full flex items-center justify-between px-3 sm:px-4 pt-3 pb-1 select-none z-10">
-      {/* Top Left: App Icon + History icon */}
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+    <header className="w-full flex items-center justify-between px-3 sm:px-4 pt-2 pb-1 select-none z-10">
+      {/* Top Left: App Icon + History icon + APK badge */}
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         {onOpenAppIcons && (
           <button
             type="button"
@@ -67,10 +79,26 @@ export const TopBar: React.FC<TopBarProps> = ({
           }}
           aria-label="Calculation history"
           title="History"
-          className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all outline-none"
         >
-          <History className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
+          <History className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
         </button>
+
+        {/* Quick Android APK badge button */}
+        {onOpenAndroidApk && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('medium');
+              onOpenAndroidApk();
+            }}
+            title="Android APK Center (অ্যান্ড্রয়েড APK ডাউনলোড ও ইনস্টল)"
+            className="hidden xs:flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all active:scale-95 cursor-pointer"
+          >
+            <Smartphone className="w-3 h-3 text-emerald-400" />
+            <span>APK</span>
+          </button>
+        )}
       </div>
 
       {/* Middle: Developer Website Link + Optional Personal Signature */}
@@ -83,7 +111,7 @@ export const TopBar: React.FC<TopBarProps> = ({
               onOpenCustomization && onOpenCustomization();
             }}
             title="Personalize settings"
-            className="px-2 py-1 rounded-full bg-slate-200/60 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-800 dark:text-slate-200 text-xs font-bold truncate max-w-[90px] sm:max-w-[120px] flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
+            className="px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-800 dark:text-slate-200 text-xs font-bold truncate max-w-[85px] sm:max-w-[120px] flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
           >
             <Sparkles className="w-3 h-3 text-purple-500 shrink-0" />
             <span className="truncate">{personalName}</span>
@@ -110,7 +138,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             style={{ color: accentColor }}
             className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform shrink-0"
           />
-          <span className="truncate max-w-[100px] sm:max-w-[150px]">prachurjo.dev.cv</span>
+          <span className="truncate max-w-[95px] sm:max-w-[140px]">prachurjo.dev.cv</span>
           <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100 shrink-0" />
         </a>
       </div>
@@ -126,9 +154,9 @@ export const TopBar: React.FC<TopBarProps> = ({
             }}
             aria-label="Theme Studio (থিম স্টুডিও পেজ)"
             title="Theme Studio (থিম স্টুডিও পেজ)"
-            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all outline-none"
+            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 active:scale-95 transition-all outline-none"
           >
-            <Palette className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
+            <Palette className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
           </button>
         )}
 
@@ -140,9 +168,9 @@ export const TopBar: React.FC<TopBarProps> = ({
           }}
           aria-label="Voice Calculator (ভয়েস ক্যালকুলেটর)"
           title="Voice Calculator (মুখে বলে হিসাব করুন)"
-          className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          className="relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 active:scale-95 transition-all outline-none"
         >
-          <Mic className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
+          <Mic className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
         </button>
 
@@ -154,9 +182,9 @@ export const TopBar: React.FC<TopBarProps> = ({
           }}
           aria-label="More options"
           title="More options"
-          className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all outline-none"
         >
-          <MoreVertical className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
+          <MoreVertical className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
         </button>
       </div>
     </header>

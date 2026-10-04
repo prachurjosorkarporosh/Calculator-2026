@@ -48,6 +48,7 @@ interface ThreeDotMenuProps {
   onOpenAppIcons?: () => void;
   onOpenCustomization: () => void;
   onOpenSettings: () => void;
+  onOpenAndroidApk?: () => void;
   onOpenOnboarding?: () => void;
   onOpenPrivacy: () => void;
   onSendFeedback: () => void;
@@ -69,6 +70,7 @@ export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
   onOpenAppIcons,
   onOpenCustomization,
   onOpenSettings,
+  onOpenAndroidApk,
   onOpenOnboarding,
   onOpenPrivacy,
   onSendFeedback,
@@ -275,6 +277,35 @@ export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
             </div>
             <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-sky-500/20 text-sky-600 dark:text-sky-300 font-mono">
               IndexedDB
+            </span>
+          </button>
+        )}
+
+        {/* Android APK Center */}
+        {onOpenAndroidApk && (
+          <button
+            type="button"
+            onClick={() => handleItemClick(onOpenAndroidApk)}
+            style={{ color: theme.textPrimary }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer group ${
+              theme.isDark
+                ? 'hover:bg-white/[0.08] active:bg-white/[0.14]'
+                : 'hover:bg-black/[0.06] active:bg-black/[0.1]'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Smartphone className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left">
+                <div className="leading-tight">Android APK Center</div>
+                <div style={{ color: theme.textMuted }} className="text-[10px] font-normal">
+                  APK ডাউনলোড ও ইনস্টল
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-bold uppercase">
+              APK
             </span>
           </button>
         )}

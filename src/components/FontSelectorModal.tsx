@@ -8,7 +8,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { X, Search, Check, Type, Sparkles, Pin } from 'lucide-react';
+import { X, Search, Check, Type, Sparkles } from 'lucide-react';
 import { FONTS_CATALOG, FontOption, SYSTEM_FONT } from '../data/fonts.ts';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { ThemePalette } from '../data/themes.ts';
@@ -191,56 +191,6 @@ export const FontSelectorModal: React.FC<FontSelectorModalProps> = ({
                 {cat}
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* Pinned Phone System Font Card */}
-        <div
-          style={{
-            backgroundColor: theme.subtleAccentBg,
-            borderColor: theme.headerBorder,
-          }}
-          className="px-4 py-2.5 border-b"
-        >
-          <div
-            onClick={() => {
-              triggerHaptic('light');
-              onSelectFont(SYSTEM_FONT.id);
-            }}
-            style={{
-              backgroundColor: activeFontId === SYSTEM_FONT.id ? theme.subtleAccentBg : theme.itemBg,
-              borderColor: activeFontId === SYSTEM_FONT.id ? theme.accentColor : theme.itemBorder,
-            }}
-            className="p-3 rounded-2xl cursor-pointer transition-all border"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Pin style={{ color: theme.accentColor }} className="w-3.5 h-3.5 fill-current" />
-                <span className="font-bold text-xs">
-                  {SYSTEM_FONT.name}
-                </span>
-                <span
-                  style={{
-                    backgroundColor: theme.subtleAccentBg,
-                    color: theme.accentColor,
-                  }}
-                  className="text-[10px] px-1.5 py-0.2 rounded font-semibold"
-                >
-                  Phone Native OS Font
-                </span>
-              </div>
-              {activeFontId === SYSTEM_FONT.id && (
-                <span style={{ color: theme.accentColor }} className="flex items-center gap-1 text-xs font-bold">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" /> Active
-                </span>
-              )}
-            </div>
-            <div
-              style={{ fontFamily: SYSTEM_FONT.family }}
-              className="text-base sm:text-lg font-medium tracking-tight mt-1 truncate"
-            >
-              {customSampleText || '1,234,567.89 × 42 = 51,851,851.38'}
-            </div>
           </div>
         </div>
 

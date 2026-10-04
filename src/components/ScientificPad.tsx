@@ -23,9 +23,16 @@ interface ScientificPadProps {
   hasMemoryValue?: boolean;
   soundEnabled?: boolean;
   soundType?: SoundEffectType;
+  soundVolume?: number;
   shape?: ButtonShape;
   scale?: KeypadScale;
   palette?: ThemePalette | null;
+  animationsEnabled?: boolean;
+  effectsEnabled?: boolean;
+  voiceKeyClick?: boolean;
+  voiceLanguage?: string;
+  voicePitch?: number;
+  voiceRate?: number;
 }
 
 export const ScientificPad: React.FC<ScientificPadProps> = ({
@@ -41,9 +48,16 @@ export const ScientificPad: React.FC<ScientificPadProps> = ({
   hasMemoryValue = false,
   soundEnabled = true,
   soundType = 'tactile',
+  soundVolume = 0.8,
   shape = 'round',
   scale = 'standard',
   palette,
+  animationsEnabled = true,
+  effectsEnabled = true,
+  voiceKeyClick = false,
+  voiceLanguage = 'bn-BD',
+  voicePitch = 1.0,
+  voiceRate = 1.1,
 }) => {
   // Height and text size based on scale
   const getHeightAndTextSize = () => {
@@ -92,8 +106,15 @@ export const ScientificPad: React.FC<ScientificPadProps> = ({
   const commonProps = {
     soundEnabled,
     soundType,
+    soundVolume,
     shape,
     palette,
+    animationsEnabled,
+    effectsEnabled,
+    voiceKeyClick,
+    voiceLanguage,
+    voicePitch,
+    voiceRate,
   };
 
   return (

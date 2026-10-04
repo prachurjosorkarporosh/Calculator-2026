@@ -20,7 +20,6 @@ export const SYSTEM_FONT: FontOption = {
   family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   category: 'Modern Sans',
   sample: '123,456.78 × 90',
-  isPinned: true,
 };
 
 export const FONTS_CATALOG: FontOption[] = [

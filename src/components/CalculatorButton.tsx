@@ -1,18 +1,16 @@
 /**
- * Custom Material 3 Style Calculator Button
+ * Custom Material 3 Style Calculator Button with Ripples, Effects & Voice Readout
  * Developer: Prachurjo Sorkar Porosh
  * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
- *
- * Implements Android-accurate rounded pill/circular buttons with
- * customizable corner shapes, sizing scales, theme colors, and sound effects.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ButtonShape, SoundEffectType } from '../types.ts';
 import { ThemePalette } from '../data/themes.ts';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
+import { speakKeyButton } from '../utils/speech.ts';
 
 export type ButtonVariant = 'number' | 'operator' | 'scientific' | 'action' | 'equals';
 
@@ -27,10 +25,17 @@ interface CalculatorButtonProps {
   disabled?: boolean;
   soundEnabled?: boolean;
   soundType?: SoundEffectType;
+  soundVolume?: number;
   shape?: ButtonShape;
   palette?: ThemePalette | null;
   customStyle?: React.CSSProperties;
   keyId?: string;
+  animationsEnabled?: boolean;
+  effectsEnabled?: boolean;
+  voiceKeyClick?: boolean;
+  voiceLanguage?: string;
+  voicePitch?: number;
+  voiceRate?: number;
 }
 
 export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
@@ -44,18 +49,57 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
   disabled = false,
   soundEnabled = true,
   soundType = 'tactile',
+  soundVolume = 0.8,
   shape = 'round',
   palette,
   customStyle,
   keyId,
+  animationsEnabled = true,
+  effectsEnabled = true,
+  voiceKeyClick = false,
+  voiceLanguage = 'bn-BD',
+  voicePitch = 1.0,
+  voiceRate = 1.1,
 }) => {
-  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+  const [ripple, setRipple] = useState<{ x: number; y: number; id: number } | null>(null);
+
+  const lookupId = keyId || (typeof label === 'string' ? label : ariaLabel);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (disabled) return;
+
+    // Haptic feedback
     triggerHaptic(variant === 'equals' ? 'medium' : 'light');
+
+    // Keypress sound
     if (soundEnabled) {
-      playKeypressSound(variant, soundType);
+      playKeypressSound(variant, soundType, soundVolume);
     }
+
+    // Voice button readout
+    if (voiceKeyClick) {
+      speakKeyButton(lookupId, voiceLanguage, voicePitch, voiceRate);
+    }
+
+    // Material 3 Ripple animation
+    if (animationsEnabled) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      let clientX = rect.left + rect.width / 2;
+      let clientY = rect.top + rect.height / 2;
+      if ('clientX' in e && e.clientX !== 0) {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      } else if ('touches' in e && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      }
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      setRipple({ x, y, id: Date.now() });
+      setTimeout(() => setRipple(null), 380);
+    }
+
     onClick();
   };
 
@@ -78,9 +122,6 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
   const getPaletteStyle = (): React.CSSProperties => {
     if (!palette) return {};
 
-    const lookupId = keyId || (typeof label === 'string' ? label : ariaLabel);
-
-    // 1. Check individual key-by-key override first
     const individualBg = palette.keyBgOverrides?.[lookupId];
     const individualText = palette.keyTextOverrides?.[lookupId];
 
@@ -151,10 +192,14 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
       style.opacity = Math.max(0.2, palette.buttonOpacity / 100);
     }
 
+    // Glow Effect
+    if (effectsEnabled && (variant === 'equals' || isActive)) {
+      style.boxShadow = `0 0 16px ${palette.equalsBg}66`;
+    }
+
     return style;
   };
 
-  // Default Android Material 3 classes when no custom palette
   const getFallbackClasses = () => {
     if (palette) return '';
     switch (variant) {
@@ -194,20 +239,36 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
       style={{ ...getPaletteStyle(), ...customStyle }}
       className={`
         relative select-none outline-none flex flex-col items-center justify-center
-        transition-all duration-100 ease-out active:scale-95
         font-medium cursor-pointer overflow-hidden
         focus-visible:ring-2 focus-visible:ring-[#004A77] dark:focus-visible:ring-[#C2E7FF]
+        ${animationsEnabled ? 'transition-all duration-150 ease-out active:scale-90' : 'transition-none'}
         ${getShapeClass()}
         ${getGlassClass()}
         ${getFallbackClasses()}
         ${className}
       `}
     >
-      <span className="flex items-center justify-center leading-none tracking-tight">
+      {/* Dynamic Ripple Wave */}
+      {animationsEnabled && ripple && (
+        <span
+          key={ripple.id}
+          className="absolute rounded-full bg-white/40 pointer-events-none animate-key-ripple"
+          style={{
+            left: `${ripple.x}px`,
+            top: `${ripple.y}px`,
+            width: '60px',
+            height: '60px',
+            marginLeft: '-30px',
+            marginTop: '-30px',
+          }}
+        />
+      )}
+
+      <span className="relative z-10 flex items-center justify-center leading-none tracking-tight">
         {label}
       </span>
       {subLabel && (
-        <span className="text-[10px] opacity-75 font-normal -mt-0.5">
+        <span className="relative z-10 text-[10px] opacity-75 font-normal -mt-0.5">
           {subLabel}
         </span>
       )}

@@ -572,48 +572,46 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
         </div>
       )}
 
-      {/* Top Header Bar */}
-      <header className="h-14 sm:h-16 px-4 sm:px-6 flex items-center justify-between border-b border-white/[0.08] bg-[#0D111E]/95 backdrop-blur-xl shrink-0 z-20">
+      {/* Top Header Bar - Compact & Sleek */}
+      <header className="h-12 sm:h-14 px-3 sm:px-5 flex items-center justify-between border-b border-white/[0.08] bg-[#0D111E]/95 backdrop-blur-xl shrink-0 z-20">
         {/* Left: Brand & Return Navigation */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             type="button"
             onClick={() => {
               triggerHaptic('light');
               onBackToCalculator();
             }}
-            className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white active:scale-95 transition-all cursor-pointer border border-white/[0.06]"
+            className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white active:scale-95 transition-all cursor-pointer border border-white/[0.06] shrink-0"
             title="Return to Calculator"
             aria-label="Return to Calculator"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="flex flex-col">
-            <span className="text-sm sm:text-base font-bold tracking-tight text-white flex items-center gap-2">
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-1.5 truncate">
               <span>Theme Studio</span>
-              <span className="hidden sm:inline-block text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
-                {currentThemeId === 'custom' ? 'Custom Studio' : activePresetTheme.name}
+              <span className="hidden sm:inline-block text-[9px] px-1.5 py-0.2 rounded-full bg-purple-500/20 text-purple-300 font-mono">
+                {currentThemeId === 'custom' ? 'Custom' : activePresetTheme.name}
               </span>
             </span>
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+            <div className="hidden xs:flex items-center gap-1 text-[10px] text-slate-400 truncate">
               <span>থিম ও ওয়ালপেপার স্টুডিও</span>
               <span aria-hidden="true">·</span>
               <span>21 Themes</span>
-              <span aria-hidden="true">·</span>
-              <span>66 Unique Wallpapers</span>
             </div>
           </div>
         </div>
 
         {/* Center: Segmented Navigation Control (Desktop) */}
-        <nav className="hidden md:flex items-center gap-1 p-1 bg-black/40 border border-white/[0.08] rounded-xl">
+        <nav className="hidden md:flex items-center gap-1 p-0.5 bg-black/40 border border-white/[0.08] rounded-xl">
           <button
             type="button"
             onClick={() => {
               triggerHaptic('light');
               setActiveTab('themes');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'themes'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -629,7 +627,7 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
               triggerHaptic('light');
               setActiveTab('wallpapers');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'wallpapers'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -645,7 +643,7 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
               triggerHaptic('light');
               setActiveTab('glass');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'glass'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -661,7 +659,7 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
               triggerHaptic('light');
               setActiveTab('colors');
             }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'colors'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -673,7 +671,7 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
         </nav>
 
         {/* Right: Studio Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Mobile Preview Toggle */}
           <button
             type="button"
@@ -681,9 +679,9 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
               triggerHaptic('light');
               setShowMobilePreview((v) => !v);
             }}
-            className="md:hidden px-3 py-1.5 rounded-xl bg-white/[0.08] border border-white/10 text-xs font-bold text-slate-200 flex items-center gap-1.5 active:scale-95"
+            className="md:hidden px-2.5 py-1 rounded-lg bg-white/[0.08] border border-white/10 text-[11px] font-bold text-slate-200 flex items-center gap-1 active:scale-95 cursor-pointer"
           >
-            <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+            <Smartphone className="w-3 h-3 text-emerald-400" />
             <span>{showMobilePreview ? 'Controls' : 'Preview'}</span>
           </button>
 
@@ -691,25 +689,26 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
             type="button"
             onClick={handleRandomTheme}
             title="Random Theme"
-            className="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-[11px] font-medium text-slate-300 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
           >
-            <Dices className="w-3.5 h-3.5 text-purple-400" />
+            <Dices className="w-3 h-3 text-purple-400" />
             <span className="hidden lg:inline">Surprise Me</span>
           </button>
 
           <button
             type="button"
             onClick={handleSaveAndExit}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer shadow-lg active:scale-95"
+            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1 cursor-pointer shadow-md active:scale-95"
           >
             <Check className="w-3.5 h-3.5 stroke-[3]" />
-            <span>Apply to Calculator</span>
+            <span className="hidden sm:inline">Apply to Calculator</span>
+            <span className="sm:hidden">Apply</span>
           </button>
         </div>
       </header>
 
-      {/* Mobile Navigation Tabs */}
-      <nav className="md:hidden flex items-center gap-1 px-3 py-2 border-b border-white/[0.08] bg-[#0B0E18] overflow-x-auto scrollbar-none">
+      {/* Mobile Navigation Tabs - Compact */}
+      <nav className="md:hidden flex items-center gap-1 px-2.5 py-1 border-b border-white/[0.08] bg-[#0B0E18] overflow-x-auto scrollbar-none">
         <button
           type="button"
           onClick={() => {
@@ -717,7 +716,7 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
             setActiveTab('themes');
             setShowMobilePreview(false);
           }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors ${
             activeTab === 'themes'
               ? 'bg-purple-600 text-white'
               : 'text-slate-400 hover:text-white'
@@ -733,13 +732,13 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
             setActiveTab('wallpapers');
             setShowMobilePreview(false);
           }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors ${
             activeTab === 'wallpapers'
               ? 'bg-purple-600 text-white'
               : 'text-slate-400 hover:text-white'
           }`}
         >
-          Wallpapers (66)
+          Wallpapers ({CURATED_WALLPAPERS.length})
         </button>
 
         <button
@@ -749,13 +748,13 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
             setActiveTab('glass');
             setShowMobilePreview(false);
           }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors ${
             activeTab === 'glass'
               ? 'bg-purple-600 text-white'
               : 'text-slate-400 hover:text-white'
           }`}
         >
-          Glass & Atmosphere
+          Glass
         </button>
 
         <button
@@ -765,13 +764,13 @@ export const ThemeStudioPage: React.FC<ThemeStudioPageProps> = ({
             setActiveTab('colors');
             setShowMobilePreview(false);
           }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors ${
             activeTab === 'colors'
               ? 'bg-purple-600 text-white'
               : 'text-slate-400 hover:text-white'
           }`}
         >
-          Color Palette
+          Palette
         </button>
       </nav>
 
