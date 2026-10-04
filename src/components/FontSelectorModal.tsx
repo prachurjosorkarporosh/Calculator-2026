@@ -6,8 +6,8 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { X, Search, Check, Type, Sparkles } from 'lucide-react';
-import { FONTS_CATALOG, FontOption } from '../data/fonts.ts';
+import { X, Search, Check, Type, Sparkles, Pin } from 'lucide-react';
+import { FONTS_CATALOG, FontOption, SYSTEM_FONT } from '../data/fonts.ts';
 import { triggerHaptic } from '../utils/haptics.ts';
 
 interface FontSelectorModalProps {
@@ -108,6 +108,61 @@ export const FontSelectorModal: React.FC<FontSelectorModalProps> = ({
                 {cat}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Pinned Phone System Font Card (Always at the top) */}
+        <div className="p-3 sm:px-4 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 dark:from-indigo-950/40 dark:via-purple-950/30 dark:to-indigo-950/40 border-b border-indigo-200/50 dark:border-indigo-800/40">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <Pin className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400" />
+              <span className="text-[11px] font-bold tracking-wider uppercase text-indigo-700 dark:text-indigo-300">
+                Pinned · ফোনের সিস্টেম ফন্ট (Phone System Font)
+              </span>
+            </div>
+            {activeFontId === SYSTEM_FONT.id && (
+              <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                <Check className="w-3.5 h-3.5 stroke-[3]" /> Active
+              </span>
+            )}
+          </div>
+
+          <div
+            onClick={() => {
+              triggerHaptic('light');
+              onSelectFont(SYSTEM_FONT.id);
+            }}
+            className={`p-3 rounded-2xl cursor-pointer transition-all border ${
+              activeFontId === SYSTEM_FONT.id
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                : 'bg-white/80 dark:bg-slate-800/80 border-indigo-200/70 dark:border-indigo-700/60 hover:bg-white dark:hover:bg-slate-800 text-slate-900 dark:text-white'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-bold text-sm">
+                  {SYSTEM_FONT.name}
+                </div>
+                <div className={`text-[11px] ${activeFontId === SYSTEM_FONT.id ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                  Uses your mobile device's native OS font (Android / iOS / Windows)
+                </div>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                activeFontId === SYSTEM_FONT.id
+                  ? 'bg-white/20 text-white'
+                  : 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'
+              }`}>
+                Native UI
+              </span>
+            </div>
+            <div
+              style={{ fontFamily: SYSTEM_FONT.family }}
+              className={`text-base sm:text-xl font-medium tracking-tight mt-1.5 overflow-hidden text-ellipsis whitespace-nowrap ${
+                activeFontId === SYSTEM_FONT.id ? 'text-white' : 'text-slate-800 dark:text-slate-100'
+              }`}
+            >
+              1,234,567.89 × 42 = 51,851,851.38
+            </div>
           </div>
         </div>
 

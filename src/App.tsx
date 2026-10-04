@@ -1,13 +1,12 @@
 /**
  * Prachurjo Calculator - Main Application Entry
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
  * Full production-ready Android Scientific Calculator with
- * 50+ Google Fonts gallery, 12+ aesthetic themes & custom color builder,
- * adjustable keypad sizing (compact, standard, spacious, jumbo),
- * corner styles, audio sound styles, local history, and full scientific engine.
+ * 50+ Google Fonts gallery, 18+ aesthetic themes, 100+ HD wallpapers,
+ * adjustable keypad sizing, corner styles, audio sound styles, local history, and full scientific engine.
  */
 
 import React, { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
@@ -43,7 +42,9 @@ import { HelpDialog } from './components/HelpDialog.tsx';
 import { AboutDialog } from './components/AboutDialog.tsx';
 import { VoiceCalculatorModal } from './components/VoiceCalculatorModal.tsx';
 import { PhoneDatabaseModal } from './components/PhoneDatabaseModal.tsx';
+import { AppIconModal } from './components/AppIconModal.tsx';
 import { PhoneDatabaseManager } from './data/phoneDatabase.ts';
+import { updateDocumentFavicon } from './data/appIcons.ts';
 import { playKeypressSound } from './utils/sound.ts';
 import { setHapticsEnabled, triggerHaptic } from './utils/haptics.ts';
 
@@ -89,6 +90,14 @@ export default function App() {
     LocalStorageManager.getPersonalName
   );
 
+  // App Icon & Glass Blur Customization
+  const [appIconId, setAppIconId] = useState<string>(
+    LocalStorageManager.getAppIconId
+  );
+  const [buttonBlur, setButtonBlur] = useState<number>(
+    LocalStorageManager.getButtonBlur
+  );
+
   // Audio & Haptic Customization
   const [soundEnabled, setSoundEnabled] = useState<boolean>(
     LocalStorageManager.getKeypressSound
@@ -113,6 +122,7 @@ export default function App() {
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isThemesOpen, setIsThemesOpen] = useState<boolean>(false);
   const [isFontsOpen, setIsFontsOpen] = useState<boolean>(false);
+  const [isAppIconOpen, setIsAppIconOpen] = useState<boolean>(false);
   const [isCustomizationOpen, setIsCustomizationOpen] = useState<boolean>(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState<boolean>(false);
   const [isPrivacyDialogOpen, setIsPrivacyDialogOpen] = useState<boolean>(false);
@@ -121,6 +131,11 @@ export default function App() {
   const [isVoiceOpen, setIsVoiceOpen] = useState<boolean>(false);
   const [isDatabaseOpen, setIsDatabaseOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<'calculator' | 'theme-studio'>('calculator');
+
+  // Sync document favicon dynamically
+  useEffect(() => {
+    updateDocumentFavicon(appIconId);
+  }, [appIconId]);
 
   // Initialize Phone Native Database (IndexedDB)
   useEffect(() => {
@@ -149,6 +164,7 @@ export default function App() {
       return {
         id: 'custom',
         name: 'Custom Theme',
+        category: 'Glass & Aurora',
         isDark: true,
         bg: customColors.bg,
         surface: customColors.bg,
@@ -176,7 +192,7 @@ export default function App() {
         bgOverlayOpacity: customColors.bgOverlayOpacity,
         isGlassmorphic: customColors.isGlassmorphic,
         animatedBg: customColors.animatedBg,
-        buttonBlur: customColors.buttonBlur,
+        buttonBlur: customColors.buttonBlur !== undefined ? customColors.buttonBlur : buttonBlur,
         buttonBgImage: customColors.buttonBgImage,
         buttonOpacity: customColors.buttonOpacity,
         buttonGlassmorphic: customColors.buttonGlassmorphic,
@@ -185,8 +201,17 @@ export default function App() {
       };
     }
     const found = THEME_PALETTES.find((t) => t.id === themeId);
-    return found || THEME_PALETTES[0];
-  }, [themeId, customColors]);
+    if (found) {
+      return {
+        ...found,
+        buttonBlur: buttonBlur,
+      };
+    }
+    return {
+      ...THEME_PALETTES[0],
+      buttonBlur: buttonBlur,
+    };
+  }, [themeId, customColors, buttonBlur]);
 
   // Resolve Active Font
   const activeFont = useMemo<FontOption>(() => {
@@ -525,6 +550,25 @@ export default function App() {
     LocalStorageManager.savePersonalName(name);
   }, []);
 
+  // Change App Icon
+  const handleSelectAppIcon = useCallback((iconId: string) => {
+    setAppIconId(iconId);
+    LocalStorageManager.saveAppIconId(iconId);
+    updateDocumentFavicon(iconId);
+  }, []);
+
+  // Change Button Backdrop Blur
+  const handleChangeButtonBlur = useCallback((blur: number) => {
+    setButtonBlur(blur);
+    LocalStorageManager.saveButtonBlur(blur);
+    if (customColors) {
+      const updated: CustomThemeColors = { ...customColors, buttonBlur: blur };
+      setCustomColors(updated);
+      LocalStorageManager.saveCustomColors(updated);
+      PhoneDatabaseManager.saveCustomColors(updated);
+    }
+  }, [customColors]);
+
   // History restore
   const handleSelectHistoryItem = useCallback((item: HistoryItem) => {
     setExpression(item.expression);
@@ -741,6 +785,8 @@ export default function App() {
             onOpenThemeStudio={() => setCurrentPage('theme-studio')}
             personalName={personalName}
             onOpenCustomization={() => setIsCustomizationOpen(true)}
+            appIconId={appIconId}
+            onOpenAppIcons={() => setIsAppIconOpen(true)}
           />
         </div>
 
@@ -828,6 +874,7 @@ export default function App() {
             setCurrentPage('theme-studio');
           }}
           onOpenFonts={() => setIsFontsOpen(true)}
+          onOpenAppIcons={() => setIsAppIconOpen(true)}
           onOpenCustomization={() => setIsCustomizationOpen(true)}
           onOpenSettings={() => setIsSettingsDialogOpen(true)}
           onOpenPrivacy={() => setIsPrivacyDialogOpen(true)}
@@ -854,6 +901,14 @@ export default function App() {
           onClose={() => setIsFontsOpen(false)}
         />
 
+        {/* App Icon Selector Modal */}
+        <AppIconModal
+          isOpen={isAppIconOpen}
+          activeIconId={appIconId}
+          onSelectIcon={handleSelectAppIcon}
+          onClose={() => setIsAppIconOpen(false)}
+        />
+
         {/* Personalize & Sizing Controls Modal */}
         <CustomizationModal
           isOpen={isCustomizationOpen}
@@ -861,6 +916,8 @@ export default function App() {
           keypadScale={keypadScale}
           displaySize={displaySize}
           personalName={personalName}
+          buttonBlur={buttonBlur}
+          activeAppIconId={appIconId}
           soundEnabled={soundEnabled}
           soundType={soundType}
           hapticEnabled={hapticEnabled}
@@ -871,6 +928,11 @@ export default function App() {
           onChangeKeypadScale={handleChangeKeypadScale}
           onChangeDisplaySize={handleChangeDisplaySize}
           onChangePersonalName={handleChangePersonalName}
+          onChangeButtonBlur={handleChangeButtonBlur}
+          onOpenAppIcons={() => {
+            setIsCustomizationOpen(false);
+            setIsAppIconOpen(true);
+          }}
           onToggleSound={handleToggleSound}
           onChangeSoundType={handleChangeSoundType}
           onToggleHaptic={handleToggleHaptic}
@@ -901,6 +963,11 @@ export default function App() {
           isOpen={isSettingsDialogOpen}
           soundEnabled={soundEnabled}
           onToggleSound={handleToggleSound}
+          appIconId={appIconId}
+          onOpenAppIcons={() => {
+            setIsSettingsDialogOpen(false);
+            setIsAppIconOpen(true);
+          }}
           onClose={() => setIsSettingsDialogOpen(false)}
         />
 

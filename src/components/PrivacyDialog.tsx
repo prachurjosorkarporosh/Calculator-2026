@@ -64,12 +64,12 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({ isOpen, onClose })
             Developer: Prachurjo Sorkar Porosh<br />
             Website:{' '}
             <a
-              href="https://prachurjo.pro.bd/"
+              href="https://prachurjo.dev.cv"
               target="_blank"
               rel="noreferrer"
               className="text-[#087A36] dark:text-emerald-400 hover:underline"
             >
-              https://prachurjo.pro.bd/
+              https://prachurjo.dev.cv
             </a>
           </p>
         </div>

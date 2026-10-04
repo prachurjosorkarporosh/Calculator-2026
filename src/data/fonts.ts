@@ -1,7 +1,7 @@
 /**
  * 50+ Curated Fonts Directory for Prachurjo Calculator
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  */
 
@@ -11,9 +11,20 @@ export interface FontOption {
   family: string;
   category: 'Modern Sans' | 'Tech & Mono' | 'Futuristic' | 'Editorial Serif' | 'Handwriting';
   sample: string;
+  isPinned?: boolean;
 }
 
+export const SYSTEM_FONT: FontOption = {
+  id: 'system',
+  name: 'Phone System Font (ডিফল্ট ফোন ফন্ট)',
+  family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  category: 'Modern Sans',
+  sample: '123,456.78 × 90',
+  isPinned: true,
+};
+
 export const FONTS_CATALOG: FontOption[] = [
+  SYSTEM_FONT,
   // Modern Sans (18)
   { id: 'roboto', name: 'Roboto', family: "'Roboto', sans-serif", category: 'Modern Sans', sample: '123,456.78 × 90' },
   { id: 'inter', name: 'Inter', family: "'Inter', sans-serif", category: 'Modern Sans', sample: '123,456.78 × 90' },

@@ -1,13 +1,17 @@
 /**
  * Rich Theme Palettes & Photo Wallpaper Catalog for Prachurjo Calculator
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  */
+
+import { CURATED_WALLPAPERS, type WallpaperOption, WALLPAPER_CATEGORIES } from './wallpapers.ts';
+export { CURATED_WALLPAPERS, type WallpaperOption, WALLPAPER_CATEGORIES };
 
 export interface ThemePalette {
   id: string;
   name: string;
+  category: 'OLED & Dark' | 'Neon & Cyber' | 'Glass & Aurora' | 'Pastel & Light' | 'Retro & Tech' | 'Nature & Earth';
   isDark: boolean;
   bg: string;
   surface: string;
@@ -43,92 +47,21 @@ export interface ThemePalette {
   keyTextOverrides?: Record<string, string>;
 }
 
-export interface WallpaperOption {
-  id: string;
-  name: string;
-  url: string;
-  category: 'Space & Sky' | 'Cyberpunk & City' | 'Nature' | 'Abstract';
-}
-
-export const CURATED_WALLPAPERS: WallpaperOption[] = [
-  {
-    id: 'nebula',
-    name: 'Cosmic Nebula',
-    url: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=1200&auto=format&fit=crop',
-    category: 'Space & Sky',
-  },
-  {
-    id: 'aurora',
-    name: 'Aurora Borealis',
-    url: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?q=80&w=1200&auto=format&fit=crop',
-    category: 'Space & Sky',
-  },
-  {
-    id: 'cyberpunk-city',
-    name: 'Neon Tokyo Night',
-    url: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?q=80&w=1200&auto=format&fit=crop',
-    category: 'Cyberpunk & City',
-  },
-  {
-    id: 'alpine-sunset',
-    name: 'Alpine Mountain Twilight',
-    url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop',
-    category: 'Nature',
-  },
-  {
-    id: 'ocean-waves',
-    name: 'Deep Blue Wave',
-    url: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1200&auto=format&fit=crop',
-    category: 'Nature',
-  },
-  {
-    id: 'glass-abstract',
-    name: 'Prism Glassmorphism',
-    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
-    category: 'Abstract',
-  },
-  {
-    id: 'desert-dunes',
-    name: 'Golden Sahara Dunes',
-    url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200&auto=format&fit=crop',
-    category: 'Nature',
-  },
-  {
-    id: 'anime-sunset',
-    name: 'Lofi Sky & Clouds',
-    url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop',
-    category: 'Space & Sky',
-  },
-  {
-    id: 'cherry-blossom',
-    name: 'Sakura Night Bloom',
-    url: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=1200&auto=format&fit=crop',
-    category: 'Nature',
-  },
-  {
-    id: 'cyber-grid',
-    name: 'Synthwave Matrix Grid',
-    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop',
-    category: 'Cyberpunk & City',
-  },
-  {
-    id: 'galaxy-webb',
-    name: 'Deep Cosmos Cluster',
-    url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1200&auto=format&fit=crop',
-    category: 'Space & Sky',
-  },
-  {
-    id: 'minimal-architecture',
-    name: 'Monolith Dark Shadow',
-    url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop',
-    category: 'Abstract',
-  },
-];
+export const THEME_CATEGORIES = [
+  'All',
+  'OLED & Dark',
+  'Neon & Cyber',
+  'Glass & Aurora',
+  'Pastel & Light',
+  'Retro & Tech',
+  'Nature & Earth',
+] as const;
 
 export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'pixel-light',
     name: 'Material White (Default)',
+    category: 'Pastel & Light',
     isDark: false,
     bg: '#FFFFFF',
     surface: '#F8FAFC',
@@ -152,6 +85,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'material-dark',
     name: 'Material Charcoal',
+    category: 'OLED & Dark',
     isDark: true,
     bg: '#121316',
     surface: '#191C1E',
@@ -175,6 +109,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'photo-nebula',
     name: 'Cosmic Nebula (Photo + Glass)',
+    category: 'Glass & Aurora',
     isDark: true,
     bg: '#0B0D19',
     surface: '#12162A',
@@ -202,6 +137,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'photo-aurora',
     name: 'Aurora Borealis (Photo + Glass)',
+    category: 'Glass & Aurora',
     isDark: true,
     bg: '#051A18',
     surface: '#0A2825',
@@ -229,6 +165,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'animated-aurora',
     name: 'Fluid Aurora (Live Animated)',
+    category: 'Glass & Aurora',
     isDark: true,
     bg: '#0f172a',
     surface: '#1e293b',
@@ -255,6 +192,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'amoled-black',
     name: 'AMOLED Pure Pitch',
+    category: 'OLED & Dark',
     isDark: true,
     bg: '#000000',
     surface: '#0A0A0A',
@@ -278,6 +216,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'nord-frost',
     name: 'Nord Frost',
+    category: 'OLED & Dark',
     isDark: true,
     bg: '#2E3440',
     surface: '#3B4252',
@@ -301,6 +240,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'cyberpunk',
     name: 'Cyberpunk Neon',
+    category: 'Neon & Cyber',
     isDark: true,
     bg: '#0B0C10',
     surface: '#12141D',
@@ -324,6 +264,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'sunset-glow',
     name: 'Sunset Twilight',
+    category: 'Pastel & Light',
     isDark: true,
     bg: '#1A0E1A',
     surface: '#241424',
@@ -347,6 +288,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'emerald-forest',
     name: 'Emerald Forest',
+    category: 'Nature & Earth',
     isDark: true,
     bg: '#051E17',
     surface: '#092A20',
@@ -370,6 +312,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'deep-ocean',
     name: 'Deep Maritime Navy',
+    category: 'Nature & Earth',
     isDark: true,
     bg: '#0A192F',
     surface: '#112240',
@@ -393,6 +336,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'dracula',
     name: 'Dracula Purple',
+    category: 'Neon & Cyber',
     isDark: true,
     bg: '#282A36',
     surface: '#343746',
@@ -416,6 +360,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'rose-blush',
     name: 'Rose Pastel Blush',
+    category: 'Pastel & Light',
     isDark: false,
     bg: '#FDF2F4',
     surface: '#FCE7EB',
@@ -439,6 +384,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'monochrome',
     name: 'Swiss Monochrome',
+    category: 'Pastel & Light',
     isDark: false,
     bg: '#F4F4F5',
     surface: '#E4E4E7',
@@ -462,6 +408,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'matcha-latte',
     name: 'Matcha Latte',
+    category: 'Nature & Earth',
     isDark: false,
     bg: '#F3F4EE',
     surface: '#E7E9DD',
@@ -485,6 +432,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'classic-casio',
     name: 'Retro Casio 991 (Classic)',
+    category: 'Retro & Tech',
     isDark: true,
     bg: '#1C2127',
     surface: '#252B33',
@@ -508,6 +456,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'ios-dark',
     name: 'iOS Cupertino Dark',
+    category: 'OLED & Dark',
     isDark: true,
     bg: '#000000',
     surface: '#1C1C1E',
@@ -531,6 +480,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'matrix-phosphor',
     name: 'Matrix Phosphor Terminal',
+    category: 'Retro & Tech',
     isDark: true,
     bg: '#050B05',
     surface: '#0A150A',
@@ -554,6 +504,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'crimson-gaming',
     name: 'Crimson Cyber Gaming',
+    category: 'Neon & Cyber',
     isDark: true,
     bg: '#0F080A',
     surface: '#180D10',
@@ -577,6 +528,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'desert-luxury',
     name: 'Sahara Obsidian & Gold',
+    category: 'OLED & Dark',
     isDark: true,
     bg: '#121110',
     surface: '#1A1816',
@@ -600,6 +552,7 @@ export const THEME_PALETTES: ThemePalette[] = [
   {
     id: 'tokyo-sakura',
     name: 'Tokyo Sakura Frosted Glass',
+    category: 'Glass & Aurora',
     isDark: true,
     bg: '#1A131A',
     surface: '#241B24',

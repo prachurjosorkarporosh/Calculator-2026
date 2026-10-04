@@ -1,7 +1,7 @@
 /**
  * Top-Right Overflow Menu
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
  * Implements Android Material 3 popup menu with:
@@ -9,12 +9,13 @@
  * 2. Sound effects quick toggle
  * 3. Choose theme (12+ themes)
  * 4. 50+ Fonts gallery
- * 5. Personalize & Sizing
- * 6. Settings
- * 7. Privacy Policy
- * 8. Send feedback
- * 9. Help
- * 10. About
+ * 5. App Icon Changer
+ * 6. Personalize & Sizing
+ * 7. Settings
+ * 8. Privacy Policy
+ * 9. Send feedback
+ * 10. Help
+ * 11. About
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -32,6 +33,7 @@ import {
   Settings,
   Mic,
   Database,
+  Smartphone,
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
@@ -46,6 +48,7 @@ interface ThreeDotMenuProps {
   onOpenDatabase?: () => void;
   onOpenThemes: () => void;
   onOpenFonts: () => void;
+  onOpenAppIcons?: () => void;
   onOpenCustomization: () => void;
   onOpenSettings: () => void;
   onOpenPrivacy: () => void;
@@ -64,6 +67,7 @@ export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
   onOpenDatabase,
   onOpenThemes,
   onOpenFonts,
+  onOpenAppIcons,
   onOpenCustomization,
   onOpenSettings,
   onOpenPrivacy,
@@ -212,6 +216,23 @@ export const ThreeDotMenu: React.FC<ThreeDotMenuProps> = ({
           52
         </span>
       </button>
+
+      {/* App Icon Changer */}
+      {onOpenAppIcons && (
+        <button
+          type="button"
+          onClick={() => handleItemClick(onOpenAppIcons)}
+          className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>অ্যাপ আইকন (App Icon)</span>
+          </div>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold uppercase">
+            Icon
+          </span>
+        </button>
+      )}
 
       {/* Sizing & Customization */}
       <button

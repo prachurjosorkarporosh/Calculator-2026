@@ -1,7 +1,7 @@
 /**
  * Prachurjo Calculator Types & State Definitions
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  */
 
@@ -48,6 +48,8 @@ export interface CustomThemeColors {
 export interface UserPreferences {
   themeId: string;
   fontId: string;
+  appIconId?: string;
+  buttonBlur?: number;
   buttonShape: ButtonShape;
   keypadScale: KeypadScale;
   displaySize?: DisplaySize;
@@ -60,3 +62,4 @@ export interface UserPreferences {
   angleMode: AngleMode;
   customColors?: CustomThemeColors;
 }
+

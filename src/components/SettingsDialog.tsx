@@ -1,12 +1,13 @@
 /**
  * Settings Dialog
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
  * Implements Android settings options:
  * - Keypress sound effect toggle
  * - Haptic feedback toggle
+ * - App Icon style launcher
  * - Angle mode default
  */
 
@@ -14,11 +15,14 @@ import React from 'react';
 import { Volume2, VolumeX, Smartphone, Settings } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
+import { getAppIconDataUri } from '../data/appIcons.ts';
 
 interface SettingsDialogProps {
   isOpen: boolean;
   soundEnabled: boolean;
   onToggleSound: () => void;
+  appIconId?: string;
+  onOpenAppIcons?: () => void;
   onClose: () => void;
 }
 
@@ -26,6 +30,8 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   isOpen,
   soundEnabled,
   onToggleSound,
+  appIconId = 'emerald-pro',
+  onOpenAppIcons,
   onClose,
 }) => {
   if (!isOpen) return null;
@@ -89,6 +95,37 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               />
             </div>
           </div>
+
+          {/* App Icon Switcher */}
+          {onOpenAppIcons && (
+            <div
+              onClick={() => {
+                triggerHaptic('light');
+                onClose();
+                onOpenAppIcons();
+              }}
+              className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40 cursor-pointer hover:bg-white/90 dark:hover:bg-black/30 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl overflow-hidden shadow-xs border border-white/20 flex items-center justify-center shrink-0">
+                  <img
+                    src={getAppIconDataUri(appIconId)}
+                    alt="Current app icon"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">App Icon Style</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    ১০+ স্টাইলিশ অ্যাপ আইকন
+                  </div>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
+                Change
+              </span>
+            </div>
+          )}
 
           {/* Haptic Feedback Info */}
           <div className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40">

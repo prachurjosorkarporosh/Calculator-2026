@@ -1,7 +1,7 @@
 /**
  * Advanced Personalize & Sizing Studio (পার্সোনালাইজেশন ও সাইজিং স্টুডিও)
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Calculator. All rights reserved.
  *
  * Supercharged Features:
@@ -9,6 +9,8 @@
  * - 5 Keypad Scales: Compact, Standard, Spacious, Jumbo, Ultra
  * - 3 Display Font Sizes: Standard (100%), Large (125%), Huge (150%)
  * - 4 Corner Shapes: Circle/Pill, Squircle, Soft Corners, Subtle Sharp
+ * - Button Glass Blur slider (0px - 24px)
+ * - App Icon style switcher
  * - Audio Effects with live Play Sound test buttons
  * - Haptic Vibration toggle
  * - Live Interactive Mini Keypad Preview
@@ -30,12 +32,14 @@ import {
   Sparkles,
   Play,
   Check,
+  Sliders,
 } from 'lucide-react';
 import { ButtonShape, KeypadScale, DisplaySize, SoundEffectType } from '../types.ts';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
 import { FONTS_CATALOG } from '../data/fonts.ts';
 import { THEME_PALETTES } from '../data/themes.ts';
+import { getAppIconDataUri } from '../data/appIcons.ts';
 
 interface CustomizationModalProps {
   isOpen: boolean;
@@ -43,6 +47,8 @@ interface CustomizationModalProps {
   keypadScale: KeypadScale;
   displaySize?: DisplaySize;
   personalName?: string;
+  buttonBlur?: number;
+  activeAppIconId?: string;
   soundEnabled: boolean;
   soundType: SoundEffectType;
   hapticEnabled: boolean;
@@ -53,6 +59,8 @@ interface CustomizationModalProps {
   onChangeKeypadScale: (scale: KeypadScale) => void;
   onChangeDisplaySize?: (size: DisplaySize) => void;
   onChangePersonalName?: (name: string) => void;
+  onChangeButtonBlur?: (blur: number) => void;
+  onOpenAppIcons?: () => void;
   onToggleSound: () => void;
   onChangeSoundType: (type: SoundEffectType) => void;
   onToggleHaptic: () => void;
@@ -68,6 +76,8 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   keypadScale,
   displaySize = 'standard',
   personalName = '',
+  buttonBlur = 8,
+  activeAppIconId = 'emerald-pro',
   soundEnabled,
   soundType,
   hapticEnabled,
@@ -78,6 +88,8 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
   onChangeKeypadScale,
   onChangeDisplaySize,
   onChangePersonalName,
+  onChangeButtonBlur,
+  onOpenAppIcons,
   onToggleSound,
   onChangeSoundType,
   onToggleHaptic,
@@ -359,6 +371,73 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({
                   ))}
                 </div>
               </div>
+
+              {/* Button Glass Blur Slider */}
+              {onChangeButtonBlur && (
+                <div className="p-3.5 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/60 dark:border-slate-700/40 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                    <div className="flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span>কাঁচের বোতামের ব্লার (Button Glass Blur):</span>
+                    </div>
+                    <span className="font-mono text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md">
+                      {buttonBlur}px
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="24"
+                    step="1"
+                    value={buttonBlur}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      onChangeButtonBlur(val);
+                      triggerHaptic('light');
+                    }}
+                    className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
+                    <span>0px (Sharp)</span>
+                    <span>8px (Standard)</span>
+                    <span>16px (Frosted)</span>
+                    <span>24px (Heavy Glass)</span>
+                  </div>
+                </div>
+              )}
+
+              {/* App Icon Switcher Card */}
+              {onOpenAppIcons && (
+                <div
+                  onClick={() => {
+                    triggerHaptic('light');
+                    onClose();
+                    onOpenAppIcons();
+                  }}
+                  className="p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/60 dark:border-slate-700/40 flex items-center justify-between cursor-pointer hover:bg-white dark:hover:bg-black/30 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs border border-white/20 flex items-center justify-center shrink-0">
+                      <img
+                        src={getAppIconDataUri(activeAppIconId)}
+                        alt="Current icon"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs text-slate-900 dark:text-white">
+                        অ্যাপ আইকন স্টাইল (App Icon Style)
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        ১০+ স্টাইলিশ লঞ্চার ও ট্যাব আইকন
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    Change
+                  </span>
+                </div>
+              )}
             </div>
           )}
 

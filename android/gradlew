@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+# Gradle wrapper fallback script
+DIR="$(cd "$(dirname "$0")" && pwd)"
+if command -v gradle >/dev/null 2>&1; then
+    exec gradle "$@"
+elif [ -f "$DIR/gradle/wrapper/gradle-wrapper.jar" ]; then
+    exec java -jar "$DIR/gradle/wrapper/gradle-wrapper.jar" "$@"
+else
+    echo "Gradle not found in PATH and wrapper jar missing. Please install gradle or use setup-gradle action." >&2
+    exit 1
+fi

@@ -1,13 +1,14 @@
 /**
  * Top Bar Component with Voice Calculator Access
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  */
 
 import React from 'react';
 import { History, MoreVertical, Mic, Palette, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
+import { getAppIconDataUri } from '../data/appIcons.ts';
 
 interface TopBarProps {
   onOpenHistory: () => void;
@@ -16,6 +17,8 @@ interface TopBarProps {
   onOpenThemeStudio?: () => void;
   personalName?: string;
   onOpenCustomization?: () => void;
+  appIconId?: string;
+  onOpenAppIcons?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -25,22 +28,45 @@ export const TopBar: React.FC<TopBarProps> = ({
   onOpenThemeStudio,
   personalName,
   onOpenCustomization,
+  appIconId = 'emerald-pro',
+  onOpenAppIcons,
 }) => {
   return (
     <header className="w-full flex items-center justify-between px-4 pt-3 pb-1 select-none z-10">
-      {/* Top Left: History icon */}
-      <button
-        type="button"
-        onClick={() => {
-          triggerHaptic('light');
-          onOpenHistory();
-        }}
-        aria-label="Calculation history"
-        title="History"
-        className="w-10 h-10 flex items-center justify-center rounded-full text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-      >
-        <History className="w-5 h-5 stroke-[2.2]" />
-      </button>
+      {/* Top Left: App Icon + History icon */}
+      <div className="flex items-center gap-2">
+        {onOpenAppIcons && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('light');
+              onOpenAppIcons();
+            }}
+            aria-label="App Icon Style (অ্যাপ আইকন পরিবর্তন)"
+            title="App Icon Style (অ্যাপ আইকন পরিবর্তন)"
+            className="w-8 h-8 rounded-xl overflow-hidden shadow-xs border border-white/20 active:scale-95 transition-all flex items-center justify-center p-0.5 hover:ring-2 hover:ring-emerald-500/50 cursor-pointer"
+          >
+            <img
+              src={getAppIconDataUri(appIconId)}
+              alt="App icon"
+              className="w-full h-full object-cover rounded-[9px]"
+            />
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('light');
+            onOpenHistory();
+          }}
+          aria-label="Calculation history"
+          title="History"
+          className="w-10 h-10 flex items-center justify-center rounded-full text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+        >
+          <History className="w-5 h-5 stroke-[2.2]" />
+        </button>
+      </div>
 
       {/* Middle: Personal Name / Signature Badge */}
       {personalName ? (

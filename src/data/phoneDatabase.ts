@@ -218,7 +218,7 @@ export class PhoneDatabaseManager {
       version: DB_VERSION,
       appName: 'Prachurjo Calculator',
       developer: 'Prachurjo Sorkar Porosh',
-      website: 'https://prachurjo.pro.bd/',
+      website: 'https://prachurjo.dev.cv',
       exportDate: new Date().toISOString(),
       timestamp: Date.now(),
       history,

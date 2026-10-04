@@ -1,7 +1,7 @@
 /**
  * Local Offline Storage for Prachurjo Calculator
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
  * Implements offline persistence for calculation history and preferences
@@ -37,6 +37,8 @@ const STORAGE_KEYS = {
   PERSONAL_NAME: 'prachurjo_calc_personal_name_v1',
   DISPLAY_SIZE: 'prachurjo_calc_display_size_v1',
   USER_WALLPAPERS: 'prachurjo_calc_user_wallpapers_v1',
+  APP_ICON_ID: 'prachurjo_calc_app_icon_id_v1',
+  BUTTON_BLUR: 'prachurjo_calc_button_blur_v1',
 };
 
 export interface UserSavedWallpaper {
@@ -373,4 +375,40 @@ export class LocalStorageManager {
       console.error('Failed to save display size:', e);
     }
   }
+
+  // App Icon ID
+  static getAppIconId(): string {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.APP_ICON_ID) || 'emerald-pro';
+    } catch {
+      return 'emerald-pro';
+    }
+  }
+
+  static saveAppIconId(iconId: string): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.APP_ICON_ID, iconId);
+    } catch (e) {
+      console.error('Failed to save app icon id:', e);
+    }
+  }
+
+  // Button Backdrop Blur (0 - 24px)
+  static getButtonBlur(): number {
+    try {
+      const val = localStorage.getItem(STORAGE_KEYS.BUTTON_BLUR);
+      return val !== null ? parseInt(val, 10) : 6;
+    } catch {
+      return 6;
+    }
+  }
+
+  static saveButtonBlur(blur: number): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.BUTTON_BLUR, String(blur));
+    } catch (e) {
+      console.error('Failed to save button blur:', e);
+    }
+  }
 }
+

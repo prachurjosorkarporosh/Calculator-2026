@@ -1,7 +1,7 @@
 /**
  * Custom Material 3 Style Calculator Button
  * Developer: Prachurjo Sorkar Porosh
- * https://prachurjo.pro.bd/
+ * https://prachurjo.dev.cv
  * © 2026 Prachurjo Calculator. All rights reserved.
  *
  * Implements Android-accurate rounded pill/circular buttons with
@@ -126,9 +126,14 @@ export const CalculatorButton: React.FC<CalculatorButtonProps> = ({
     };
 
     // Button Backdrop Blur support
-    if (palette.buttonBlur !== undefined && palette.buttonBlur > 0) {
-      style.backdropFilter = `blur(${palette.buttonBlur}px)`;
-      style.WebkitBackdropFilter = `blur(${palette.buttonBlur}px)`;
+    if (palette.buttonBlur !== undefined) {
+      if (palette.buttonBlur > 0) {
+        style.backdropFilter = `blur(${palette.buttonBlur}px)`;
+        style.WebkitBackdropFilter = `blur(${palette.buttonBlur}px)`;
+      } else {
+        style.backdropFilter = 'none';
+        style.WebkitBackdropFilter = 'none';
+      }
     } else if (palette.isGlassmorphic || palette.buttonGlassmorphic) {
       style.backdropFilter = 'blur(8px)';
       style.WebkitBackdropFilter = 'blur(8px)';
