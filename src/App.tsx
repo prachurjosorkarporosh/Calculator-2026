@@ -43,6 +43,7 @@ import { AboutDialog } from './components/AboutDialog.tsx';
 import { VoiceCalculatorModal } from './components/VoiceCalculatorModal.tsx';
 import { PhoneDatabaseModal } from './components/PhoneDatabaseModal.tsx';
 import { AppIconModal } from './components/AppIconModal.tsx';
+import { OnboardingThemeModal } from './components/OnboardingThemeModal.tsx';
 import { PhoneDatabaseManager } from './data/phoneDatabase.ts';
 import { updateDocumentFavicon } from './data/appIcons.ts';
 import { playKeypressSound } from './utils/sound.ts';
@@ -130,7 +131,31 @@ export default function App() {
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState<boolean>(false);
   const [isVoiceOpen, setIsVoiceOpen] = useState<boolean>(false);
   const [isDatabaseOpen, setIsDatabaseOpen] = useState<boolean>(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(
+    !LocalStorageManager.getHasOnboarded()
+  );
+  const [systemTimeThemeEnabled, setSystemTimeThemeEnabled] = useState<boolean>(
+    LocalStorageManager.getSystemTimeThemeEnabled()
+  );
   const [currentPage, setCurrentPage] = useState<'calculator' | 'theme-studio'>('calculator');
+
+  // Automatic Day/Night Theme based on User's System Time
+  useEffect(() => {
+    if (!systemTimeThemeEnabled) return;
+
+    const applySystemTimeTheme = () => {
+      const hour = new Date().getHours();
+      const isDay = hour >= 6 && hour < 18;
+      const targetId = isDay ? 'pixel-light' : 'material-dark';
+      setThemeId(targetId);
+      LocalStorageManager.saveThemeId(targetId);
+      setCustomColors(null);
+    };
+
+    applySystemTimeTheme();
+    const interval = setInterval(applySystemTimeTheme, 60000);
+    return () => clearInterval(interval);
+  }, [systemTimeThemeEnabled]);
 
   // Sync document favicon dynamically
   useEffect(() => {
@@ -511,14 +536,22 @@ export default function App() {
   const handleSelectThemeId = useCallback((id: string) => {
     setThemeId(id);
     LocalStorageManager.saveThemeId(id);
-  }, []);
+    if (systemTimeThemeEnabled) {
+      setSystemTimeThemeEnabled(false);
+      LocalStorageManager.setSystemTimeThemeEnabled(false);
+    }
+  }, [systemTimeThemeEnabled]);
 
   // Save Custom Colors
   const handleSaveCustomColors = useCallback((colors: CustomThemeColors) => {
     setCustomColors(colors);
     LocalStorageManager.saveCustomColors(colors);
     PhoneDatabaseManager.saveCustomColors(colors);
-  }, []);
+    if (systemTimeThemeEnabled) {
+      setSystemTimeThemeEnabled(false);
+      LocalStorageManager.setSystemTimeThemeEnabled(false);
+    }
+  }, [systemTimeThemeEnabled]);
 
   // Change Font ID
   const handleSelectFontId = useCallback((id: string) => {
@@ -568,6 +601,30 @@ export default function App() {
       PhoneDatabaseManager.saveCustomColors(updated);
     }
   }, [customColors]);
+
+  // Toggle System Time Theme
+  const handleToggleSystemTimeTheme = useCallback(() => {
+    setSystemTimeThemeEnabled((prev) => {
+      const next = !prev;
+      LocalStorageManager.setSystemTimeThemeEnabled(next);
+      if (next) {
+        // Immediately apply current daytime/nighttime theme
+        const hour = new Date().getHours();
+        const isDay = hour >= 6 && hour < 18;
+        const targetId = isDay ? 'pixel-light' : 'material-dark';
+        setThemeId(targetId);
+        LocalStorageManager.saveThemeId(targetId);
+        setCustomColors(null);
+      }
+      return next;
+    });
+  }, []);
+
+  // Complete First-Time Onboarding
+  const handleCompleteOnboarding = useCallback(() => {
+    setIsOnboardingOpen(false);
+    LocalStorageManager.setHasOnboarded(true);
+  }, []);
 
   // History restore
   const handleSelectHistoryItem = useCallback((item: HistoryItem) => {
@@ -877,6 +934,7 @@ export default function App() {
           onOpenAppIcons={() => setIsAppIconOpen(true)}
           onOpenCustomization={() => setIsCustomizationOpen(true)}
           onOpenSettings={() => setIsSettingsDialogOpen(true)}
+          onOpenOnboarding={() => setIsOnboardingOpen(true)}
           onOpenPrivacy={() => setIsPrivacyDialogOpen(true)}
           onSendFeedback={handleSendFeedback}
           onOpenHelp={() => setIsHelpDialogOpen(true)}
@@ -963,12 +1021,28 @@ export default function App() {
           isOpen={isSettingsDialogOpen}
           soundEnabled={soundEnabled}
           onToggleSound={handleToggleSound}
+          systemTimeThemeEnabled={systemTimeThemeEnabled}
+          onToggleSystemTimeTheme={handleToggleSystemTimeTheme}
           appIconId={appIconId}
           onOpenAppIcons={() => {
             setIsSettingsDialogOpen(false);
             setIsAppIconOpen(true);
           }}
+          onOpenOnboarding={() => {
+            setIsSettingsDialogOpen(false);
+            setIsOnboardingOpen(true);
+          }}
           onClose={() => setIsSettingsDialogOpen(false)}
+        />
+
+        {/* First-Time Onboarding Theme & Wallpaper Selector Modal */}
+        <OnboardingThemeModal
+          isOpen={isOnboardingOpen}
+          activeThemeId={themeId}
+          customColors={customColors}
+          onSelectThemeId={handleSelectThemeId}
+          onSaveCustomColors={handleSaveCustomColors}
+          onComplete={handleCompleteOnboarding}
         />
 
         {/* Privacy Policy Dialog */}

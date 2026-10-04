@@ -39,6 +39,8 @@ const STORAGE_KEYS = {
   USER_WALLPAPERS: 'prachurjo_calc_user_wallpapers_v1',
   APP_ICON_ID: 'prachurjo_calc_app_icon_id_v1',
   BUTTON_BLUR: 'prachurjo_calc_button_blur_v1',
+  HAS_ONBOARDED: 'prachurjo_calc_has_onboarded_v2',
+  SYSTEM_TIME_THEME: 'prachurjo_calc_system_time_theme_v1',
 };
 
 export interface UserSavedWallpaper {
@@ -408,6 +410,40 @@ export class LocalStorageManager {
       localStorage.setItem(STORAGE_KEYS.BUTTON_BLUR, String(blur));
     } catch (e) {
       console.error('Failed to save button blur:', e);
+    }
+  }
+
+  // First-time Onboarding
+  static getHasOnboarded(): boolean {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.HAS_ONBOARDED) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  static setHasOnboarded(val = true): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.HAS_ONBOARDED, String(val));
+    } catch (e) {
+      console.error('Failed to save onboarding state:', e);
+    }
+  }
+
+  // System-Based Theme (Day/Night auto switcher based on user's system time)
+  static getSystemTimeThemeEnabled(): boolean {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.SYSTEM_TIME_THEME) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  static setSystemTimeThemeEnabled(enabled: boolean): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SYSTEM_TIME_THEME, String(enabled));
+    } catch (e) {
+      console.error('Failed to save system time theme preference:', e);
     }
   }
 }

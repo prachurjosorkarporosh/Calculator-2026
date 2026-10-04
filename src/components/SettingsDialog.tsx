@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { Volume2, VolumeX, Smartphone, Settings } from 'lucide-react';
+import { Volume2, VolumeX, Smartphone, Settings, Sun, Moon, Clock } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics.ts';
 import { playKeypressSound } from '../utils/sound.ts';
 import { getAppIconDataUri } from '../data/appIcons.ts';
@@ -21,8 +21,11 @@ interface SettingsDialogProps {
   isOpen: boolean;
   soundEnabled: boolean;
   onToggleSound: () => void;
+  systemTimeThemeEnabled?: boolean;
+  onToggleSystemTimeTheme?: () => void;
   appIconId?: string;
   onOpenAppIcons?: () => void;
+  onOpenOnboarding?: () => void;
   onClose: () => void;
 }
 
@@ -30,11 +33,17 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   isOpen,
   soundEnabled,
   onToggleSound,
+  systemTimeThemeEnabled = false,
+  onToggleSystemTimeTheme,
   appIconId = 'emerald-pro',
   onOpenAppIcons,
+  onOpenOnboarding,
   onClose,
 }) => {
   if (!isOpen) return null;
+
+  const currentHour = new Date().getHours();
+  const isDayTime = currentHour >= 6 && currentHour < 18;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-150">
@@ -96,6 +105,56 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
             </div>
           </div>
 
+          {/* System-Based Theme Auto Switcher */}
+          {onToggleSystemTimeTheme && (
+            <div
+              onClick={() => {
+                triggerHaptic('medium');
+                onToggleSystemTimeTheme();
+              }}
+              className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40 cursor-pointer hover:bg-white/90 dark:hover:bg-black/30 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  {isDayTime ? (
+                    <Sun className="w-5 h-5" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-indigo-400" />
+                  )}
+                </div>
+                <div>
+                  <div className="text-sm font-medium flex items-center gap-1.5">
+                    <span>System-Based Theme</span>
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    {systemTimeThemeEnabled ? (
+                      <span className="text-amber-600 dark:text-amber-400 font-medium">
+                        {isDayTime ? '☀️ Daytime (Light Theme Active)' : '🌙 Nighttime (Dark Theme Active)'}
+                      </span>
+                    ) : (
+                      'Auto Light (Day) & Dark (Night)'
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Android Switch */}
+              <div
+                className={`w-12 h-7 flex items-center rounded-full p-1 duration-200 cursor-pointer transition-colors shrink-0 ${
+                  systemTimeThemeEnabled
+                    ? 'bg-[#087A36] dark:bg-emerald-500'
+                    : 'bg-slate-300 dark:bg-slate-600'
+                }`}
+              >
+                <div
+                  className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${
+                    systemTimeThemeEnabled ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </div>
+            </div>
+          )}
+
           {/* App Icon Switcher */}
           {onOpenAppIcons && (
             <div
@@ -123,6 +182,33 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               </div>
               <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
                 Change
+              </span>
+            </div>
+          )}
+
+          {/* First-Time Welcome Setup Screen Trigger */}
+          {onOpenOnboarding && (
+            <div
+              onClick={() => {
+                triggerHaptic('light');
+                onClose();
+                onOpenOnboarding();
+              }}
+              className="flex items-center justify-between p-3 rounded-2xl bg-white/70 dark:bg-black/20 border border-slate-200/50 dark:border-slate-700/40 cursor-pointer hover:bg-white/90 dark:hover:bg-black/30 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Welcome Theme Setup</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    প্রথমবারের থিম ও ওয়ালপেপার নির্বাচন স্ক্রিন
+                  </div>
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1 rounded-full">
+                Open
               </span>
             </div>
           )}
