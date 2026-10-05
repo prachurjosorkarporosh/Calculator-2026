@@ -115,4 +115,16 @@ class CalculatorViewModel(application: Application) : AndroidViewModel(applicati
             historyDao.clearHistory()
         }
     }
+
+    fun deleteHistoryItem(id: Long) {
+        viewModelScope.launch {
+            historyDao.deleteHistoryById(id)
+        }
+    }
+
+    fun restoreHistory(item: HistoryEntity) {
+        _expression.value = item.expression
+        _result.value = item.result
+        _error.value = null
+    }
 }

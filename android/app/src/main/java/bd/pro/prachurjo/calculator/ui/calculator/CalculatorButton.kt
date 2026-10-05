@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.sp
@@ -21,6 +22,7 @@ fun CalculatorButton(
     fontSize: Int = 24,
     onClick: () -> Unit
 ) {
+    val tag = "btn_" + label.lowercase().filter { it.isLetterOrDigit() }.ifEmpty { "op" }
     Button(
         onClick = onClick,
         shape = CircleShape,
@@ -28,9 +30,11 @@ fun CalculatorButton(
             containerColor = backgroundColor,
             contentColor = textColor
         ),
-        modifier = modifier.semantics {
-            contentDescription = contentDesc
-        }
+        modifier = modifier
+            .testTag(tag)
+            .semantics {
+                contentDescription = contentDesc
+            }
     ) {
         Text(
             text = label,
