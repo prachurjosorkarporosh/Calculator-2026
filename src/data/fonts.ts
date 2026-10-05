@@ -16,7 +16,7 @@ export interface FontOption {
 
 export const SYSTEM_FONT: FontOption = {
   id: 'system',
-  name: 'Phone System Font (ডিফল্ট ফোন ফন্ট)',
+  name: 'Phone System Font (ফোন সিস্টেম ফন্ট)',
   family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   category: 'Modern Sans',
   sample: '123,456.78 × 90',
@@ -89,4 +89,4 @@ export const FONTS_CATALOG: FontOption[] = [
   { id: 'patrick-hand', name: 'Patrick Hand', family: "'Patrick Hand', cursive", category: 'Handwriting', sample: '123,456.78 × 90' },
 ];
 
-export const DEFAULT_FONT_ID = 'system';
+export const DEFAULT_FONT_ID = 'audiowide';

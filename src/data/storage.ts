@@ -159,11 +159,11 @@ export class LocalStorageManager {
     }
   }
 
-  // Font ID
+  // Font ID (Default: 'audiowide')
   static getFontId(): string {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.FONT_ID);
-      if (!stored || stored === 'roboto' || stored === 'audiowide') {
+      if (!stored || stored === 'system' || stored === 'roboto') {
         return DEFAULT_FONT_ID;
       }
       return stored;

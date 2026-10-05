@@ -83,22 +83,6 @@ export const TopBar: React.FC<TopBarProps> = ({
         >
           <History className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
         </button>
-
-        {/* Quick Android APK badge button */}
-        {onOpenAndroidApk && (
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic('medium');
-              onOpenAndroidApk();
-            }}
-            title="Android APK Center (অ্যান্ড্রয়েড APK ডাউনলোড ও ইনস্টল)"
-            className="hidden xs:flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all active:scale-95 cursor-pointer"
-          >
-            <Smartphone className="w-3 h-3 text-emerald-400" />
-            <span>APK</span>
-          </button>
-        )}
       </div>
 
       {/* Middle: Developer Website Link + Optional Personal Signature */}

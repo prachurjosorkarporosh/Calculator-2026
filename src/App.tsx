@@ -24,7 +24,7 @@ import {
 import { CalculatorEngine } from './domain/calculatorEngine.ts';
 import { LocalStorageManager } from './data/storage.ts';
 import { THEME_PALETTES, ThemePalette } from './data/themes.ts';
-import { FONTS_CATALOG, FontOption } from './data/fonts.ts';
+import { FONTS_CATALOG, FontOption, DEFAULT_FONT_ID } from './data/fonts.ts';
 import { TopBar } from './components/TopBar.tsx';
 import { DisplayArea } from './components/DisplayArea.tsx';
 import { ChevronToggle } from './components/ChevronToggle.tsx';
@@ -44,8 +44,6 @@ import { VoiceCalculatorModal } from './components/VoiceCalculatorModal.tsx';
 import { PhoneDatabaseModal } from './components/PhoneDatabaseModal.tsx';
 import { AppIconModal } from './components/AppIconModal.tsx';
 import { OnboardingThemeModal } from './components/OnboardingThemeModal.tsx';
-import { AndroidStatusBar } from './components/AndroidStatusBar.tsx';
-import { AndroidNavigationBar } from './components/AndroidNavigationBar.tsx';
 import { AndroidApkModal } from './components/AndroidApkModal.tsx';
 import { SparkleEffect } from './components/SparkleEffect.tsx';
 import { PhoneDatabaseManager } from './data/phoneDatabase.ts';
@@ -262,9 +260,13 @@ export default function App() {
     };
   }, [themeId, customColors, buttonBlur]);
 
-  // Resolve Active Font
+  // Resolve Active Font (Default: Audiowide)
   const activeFont = useMemo<FontOption>(() => {
-    return FONTS_CATALOG.find((f) => f.id === fontId) || FONTS_CATALOG[0];
+    return (
+      FONTS_CATALOG.find((f) => f.id === fontId) ||
+      FONTS_CATALOG.find((f) => f.id === DEFAULT_FONT_ID) ||
+      FONTS_CATALOG[0]
+    );
   }, [fontId]);
 
   // Synchronize Theme class with DOM
@@ -1139,24 +1141,22 @@ export default function App() {
         />
       )}
 
-      {/* Android Device Container / Frame */}
+      {/* Sleek Modern Calculator Container */}
       <main
         style={{
           backgroundColor: activePalette.bg,
-          borderColor: activePalette.frameBorder,
+          borderColor: activePalette.frameBorder || 'rgba(255, 255, 255, 0.1)',
           backgroundImage: activePalette.bgImage
             ? `url(${activePalette.bgImage})`
             : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
-        className={`relative flex flex-col overflow-hidden transition-all duration-300 z-10 ${
-          androidApkMode
-            ? 'w-full h-screen max-w-full rounded-none border-none shadow-none'
-            : 'w-full sm:max-w-[430px] h-screen sm:h-[890px] sm:max-h-[96vh] sm:rounded-[44px] sm:shadow-2xl sm:border-[8px]'
-        } ${activePalette.animatedBg ? 'animate-aurora-mesh' : ''}`}
+        className={`relative flex flex-col overflow-hidden transition-all duration-300 z-10 w-full sm:max-w-md md:max-w-lg min-h-screen sm:min-h-0 sm:h-[860px] sm:max-h-[96vh] sm:rounded-3xl sm:shadow-2xl sm:border border-white/10 ${
+          activePalette.animatedBg ? 'animate-aurora-mesh' : ''
+        }`}
       >
-        {/* Background Blur Overlay for Photo Wallpapers inside frame */}
+        {/* Background Blur Overlay for Photo Wallpapers */}
         {activePalette.bgImage && (
           <div
             className="absolute inset-0 pointer-events-none z-0 transition-all duration-300"
@@ -1169,9 +1169,6 @@ export default function App() {
             }}
           />
         )}
-
-        {/* Real Android Status Bar at top */}
-        <AndroidStatusBar palette={activePalette} />
 
         {/* Top Bar with History, Voice, APK Center & 3-Dot Menu */}
         <div className="relative z-10">
@@ -1220,7 +1217,7 @@ export default function App() {
         </div>
 
         {/* Keypad Container */}
-        <div className="relative z-10 w-full px-4 pb-2 pt-1 flex flex-col justify-end">
+        <div className="relative z-10 w-full px-4 pb-4 sm:pb-6 pt-1 flex flex-col justify-end">
           {/* Scientific Mode Panel (Collapsible) */}
           {isScientificExpanded && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-150">
@@ -1273,21 +1270,6 @@ export default function App() {
             voiceRate={voiceRate}
           />
         </div>
-
-        {/* Working Android System Navigation Bar (3-Button or Gesture Bar) */}
-        <AndroidNavigationBar
-          palette={activePalette}
-          navStyle={navBarStyle}
-          hasActiveModal={hasActiveModal}
-          onBack={handleAndroidBack}
-          onHome={handleAndroidHome}
-          onRecent={handleAndroidRecent}
-          onToggleNavStyle={() => {
-            const next = navBarStyle === 'buttons' ? 'gesture' : 'buttons';
-            setNavBarStyle(next);
-            LocalStorageManager.saveNavBarStyle(next);
-          }}
-        />
 
         {/* Overflow 3-Dot Popup Menu */}
         <ThreeDotMenu

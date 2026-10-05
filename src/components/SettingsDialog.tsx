@@ -86,10 +86,10 @@ interface SettingsDialogProps {
   systemTimeThemeEnabled?: boolean;
   onToggleSystemTimeTheme?: () => void;
 
-  // Android APK Mode
-  androidApkMode: boolean;
-  onToggleAndroidApkMode: () => void;
-  onOpenAndroidApkModal: () => void;
+  // Optional legacy hooks
+  androidApkMode?: boolean;
+  onToggleAndroidApkMode?: () => void;
+  onOpenAndroidApkModal?: () => void;
 
   // Haptic & Format
   hapticEnabled: boolean;
@@ -889,152 +889,12 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
             </div>
           )}
 
-          {/* SECTION 5: Android APK & App Features */}
+          {/* SECTION 5: Preferences & Interface (প্রিফারেন্স ও সিস্টেম) */}
           {(activeTab === 'all' || activeTab === 'system') && (
             <div className="space-y-2.5">
               <div className="flex items-center gap-2 px-1 text-xs font-bold uppercase tracking-wider text-emerald-400">
-                <Smartphone className="w-3.5 h-3.5" />
-                <span>Android APK & Native App (অ্যান্ড্রয়েড অ্যাপ)</span>
-              </div>
-
-              {/* Edge-to-Edge Pure Android Mode */}
-              <div
-                onClick={() => {
-                  triggerHaptic('light');
-                  onToggleAndroidApkMode();
-                }}
-                style={{
-                  backgroundColor: theme.itemBg,
-                  borderColor: theme.itemBorder,
-                }}
-                className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
-                  theme.isDark ? 'hover:bg-white/[0.07]' : 'hover:bg-black/[0.07]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    style={{
-                      backgroundColor: androidApkMode ? theme.subtleAccentBg : theme.itemBg,
-                      color: androidApkMode ? theme.accentColor : theme.textSecondary,
-                    }}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-                  >
-                    <Smartphone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold">Pure Fullscreen Android Mode</div>
-                    <div style={{ color: theme.textSecondary }} className="text-[11px]">
-                      {androidApkMode ? 'Active: Fullscreen Android app without website frame' : 'Frame mode on website'}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    backgroundColor: androidApkMode
-                      ? theme.accentBg
-                      : theme.isDark
-                      ? 'rgba(255,255,255,0.2)'
-                      : 'rgba(0,0,0,0.2)',
-                  }}
-                  className="w-11 h-6 rounded-full p-0.5 transition-colors relative"
-                >
-                  <div
-                    className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${
-                      androidApkMode ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </div>
-              </div>
-
-              {/* Android Navigation Bar Mode (3 Buttons vs Gesture Bar) */}
-              {onChangeNavBarStyle && (
-                <div
-                  style={{
-                    backgroundColor: theme.itemBg,
-                    borderColor: theme.itemBorder,
-                  }}
-                  className="p-3.5 rounded-2xl border space-y-2.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold">Phone Navigation Bar Style (নেভিগেশন স্টাইল)</div>
-                      <div style={{ color: theme.textSecondary }} className="text-[11px]">
-                        Choose between 3-Button or Modern Gesture Bar
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic('light');
-                        onChangeNavBarStyle('buttons');
-                      }}
-                      style={{
-                        backgroundColor: navBarStyle === 'buttons' ? theme.accentBg : theme.subtleAccentBg,
-                        color: navBarStyle === 'buttons' ? theme.accentText : theme.textPrimary,
-                        borderColor: navBarStyle === 'buttons' ? theme.accentColor : theme.itemBorder,
-                      }}
-                      className="py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    >
-                      <span className="font-mono text-sm">◀ ● ■</span>
-                      <span>3-Button Bar</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic('light');
-                        onChangeNavBarStyle('gesture');
-                      }}
-                      style={{
-                        backgroundColor: navBarStyle === 'gesture' ? theme.accentBg : theme.subtleAccentBg,
-                        color: navBarStyle === 'gesture' ? theme.accentText : theme.textPrimary,
-                        borderColor: navBarStyle === 'gesture' ? theme.accentColor : theme.itemBorder,
-                      }}
-                      className="py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    >
-                      <div className="w-6 h-1 rounded-full bg-current opacity-80" />
-                      <span>Gesture Bar</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Open Android APK Center Button */}
-              <div
-                onClick={() => {
-                  triggerHaptic('light');
-                  onOpenAndroidApkModal();
-                }}
-                style={{
-                  backgroundColor: theme.itemBg,
-                  borderColor: theme.itemBorder,
-                }}
-                className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
-                  theme.isDark ? 'hover:bg-white/[0.07]' : 'hover:bg-black/[0.07]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    style={{
-                      backgroundColor: theme.subtleAccentBg,
-                      color: theme.accentColor,
-                    }}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  >
-                    <Download className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold">Download / Install Android APK</div>
-                    <div style={{ color: theme.textSecondary }} className="text-[11px]">
-                      Install WebAPK or get Calculator.apk from GitHub
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 opacity-50" />
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Preferences & System (প্রিফারেন্স ও সিস্টেম)</span>
               </div>
 
               {/* Haptic Vibration Switch */}
