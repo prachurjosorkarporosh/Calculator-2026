@@ -62,63 +62,69 @@ export default function App() {
   const [memoryValue, setMemoryValue] = useState<number | null>(null);
 
   // Preference & Customization States
-  const [isScientificExpanded, setIsScientificExpanded] = useState<boolean>(
-    LocalStorageManager.getScientificExpanded
+  const [isScientificExpanded, setIsScientificExpanded] = useState<boolean>(() =>
+    LocalStorageManager.getScientificExpanded()
   );
-  const [angleMode, setAngleMode] = useState<AngleMode>(
-    LocalStorageManager.getAngleMode
+  const [angleMode, setAngleMode] = useState<AngleMode>(() =>
+    LocalStorageManager.getAngleMode()
   );
   const [isInvActive, setIsInvActive] = useState<boolean>(false);
-  const [themeMode, setThemeMode] = useState<ThemeMode>(LocalStorageManager.getTheme);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
+    LocalStorageManager.getTheme()
+  );
 
   // Theme Palette & Custom Colors
-  const [themeId, setThemeId] = useState<string>(LocalStorageManager.getThemeId);
-  const [customColors, setCustomColors] = useState<CustomThemeColors | null>(
-    LocalStorageManager.getCustomColors
+  const [themeId, setThemeId] = useState<string>(() =>
+    LocalStorageManager.getThemeId()
+  );
+  const [customColors, setCustomColors] = useState<CustomThemeColors | null>(() =>
+    LocalStorageManager.getCustomColors()
   );
 
   // 50+ Typography / Font
-  const [fontId, setFontId] = useState<string>(LocalStorageManager.getFontId);
+  const [fontId, setFontId] = useState<string>(() =>
+    LocalStorageManager.getFontId()
+  );
 
   // Button Shape & Keypad Sizing
-  const [buttonShape, setButtonShape] = useState<ButtonShape>(
-    LocalStorageManager.getButtonShape
+  const [buttonShape, setButtonShape] = useState<ButtonShape>(() =>
+    LocalStorageManager.getButtonShape()
   );
-  const [keypadScale, setKeypadScale] = useState<KeypadScale>(
-    LocalStorageManager.getKeypadScale
+  const [keypadScale, setKeypadScale] = useState<KeypadScale>(() =>
+    LocalStorageManager.getKeypadScale()
   );
-  const [displaySize, setDisplaySize] = useState<DisplaySize>(
-    LocalStorageManager.getDisplaySize
+  const [displaySize, setDisplaySize] = useState<DisplaySize>(() =>
+    LocalStorageManager.getDisplaySize()
   );
-  const [personalName, setPersonalName] = useState<string>(
-    LocalStorageManager.getPersonalName
+  const [personalName, setPersonalName] = useState<string>(() =>
+    LocalStorageManager.getPersonalName()
   );
 
   // App Icon & Glass Blur Customization
-  const [appIconId, setAppIconId] = useState<string>(
-    LocalStorageManager.getAppIconId
+  const [appIconId, setAppIconId] = useState<string>(() =>
+    LocalStorageManager.getAppIconId()
   );
-  const [buttonBlur, setButtonBlur] = useState<number>(
-    LocalStorageManager.getButtonBlur
+  const [buttonBlur, setButtonBlur] = useState<number>(() =>
+    LocalStorageManager.getButtonBlur()
   );
 
   // Audio & Haptic Customization
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(
-    LocalStorageManager.getKeypressSound
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() =>
+    LocalStorageManager.getKeypressSound()
   );
-  const [soundType, setSoundType] = useState<SoundEffectType>(
-    LocalStorageManager.getSoundType
+  const [soundType, setSoundType] = useState<SoundEffectType>(() =>
+    LocalStorageManager.getSoundType()
   );
-  const [hapticEnabled, setHapticEnabled] = useState<boolean>(
-    LocalStorageManager.getHapticEnabled
+  const [hapticEnabled, setHapticEnabled] = useState<boolean>(() =>
+    LocalStorageManager.getHapticEnabled()
   );
-  const [formatThousands, setFormatThousands] = useState<boolean>(
-    LocalStorageManager.getFormatThousands
+  const [formatThousands, setFormatThousands] = useState<boolean>(() =>
+    LocalStorageManager.getFormatThousands()
   );
 
   // History State
-  const [history, setHistory] = useState<HistoryItem[]>(
-    LocalStorageManager.getHistory
+  const [history, setHistory] = useState<HistoryItem[]>(() =>
+    LocalStorageManager.getHistory()
   );
 
   // UI Modals & Menus
@@ -134,9 +140,7 @@ export default function App() {
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState<boolean>(false);
   const [isVoiceOpen, setIsVoiceOpen] = useState<boolean>(false);
   const [isDatabaseOpen, setIsDatabaseOpen] = useState<boolean>(false);
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(
-    !LocalStorageManager.getHasOnboarded()
-  );
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
   const [systemTimeThemeEnabled, setSystemTimeThemeEnabled] = useState<boolean>(
     LocalStorageManager.getSystemTimeThemeEnabled()
   );
